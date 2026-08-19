@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Sequence
 
@@ -37,13 +38,82 @@ CREATE TABLE IF NOT EXISTS embeddings (
 
 
 class Store:
-    def __init__(self, path: Path | str):
+    """SQLite-backed chunk store.
+
+    The connection is **thread-local**. sqlite3 connections may not cross threads,
+    and FastAPI runs sync endpoints in a worker threadpool, so a single shared
+    connection raises "SQLite objects created in a thread can only be used in that
+    same thread" on the second request that lands on a different worker. Each thread
+    lazily opens its own; the schema is CREATE IF NOT EXISTS, so re-running it per
+    connection is idempotent.
+
+    `:memory:` is the exception: an in-memory database belongs to its connection, so
+    a per-thread one would be empty. There the single connection is shared with
+    check_same_thread disabled, which is what tests use and what they need.
+    """
+
+    def __init__(self, path: Path | str, read_only: bool = False):
         path = Path(path)
-        if path.parent and str(path) != ":memory:":
+        self._path = str(path)
+        self._memory = self._path == ":memory:"
+        self._read_only = read_only and not self._memory
+        if path.parent and not self._memory and not self._read_only:
             path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(path))
-        self.conn.execute("PRAGMA journal_mode=WAL")
-        self.conn.executescript(_SCHEMA)
+        self._local = threading.local()
+        self._shared: sqlite3.Connection | None = None
+        self.conn  # open in the creating thread, applying the schema once
+
+    def _connect(self) -> sqlite3.Connection:
+        if self._read_only:
+            # Serving an already-built index from a container: the filesystem is
+            # read-only outside /tmp on Lambda, and BOTH of the writes below fail
+            # there. WAL is the non-obvious one -- it creates `-wal` and `-shm`
+            # files NEXT TO the database, so merely opening the connection raises
+            # "unable to open database file" even though nothing has been written.
+            # immutable=1 is the part that actually matters. journal_mode=WAL is
+            # persisted in the database HEADER, so a WAL database opened read-only
+            # still wants to create `-wal` and `-shm` beside itself, and fails on a
+            # read-only filesystem with SQLITE_CANTOPEN. immutable promises the file
+            # cannot change, which lets SQLite skip the WAL machinery entirely. That
+            # promise is true here: the index is baked into the container image.
+            conn = sqlite3.connect(f"file:{self._path}?mode=ro&immutable=1", uri=True)
+            # Opening read-only is not enough. An FTS5 MATCH wants scratch space,
+            # and SQLite tries to create it on disk, so the query fails with the
+            # same SQLITE_CANTOPEN ("unable to open database file") even though the
+            # database opened cleanly. That is why /gates worked and /retrieve did
+            # not. temp_store=MEMORY keeps scratch off the filesystem entirely.
+            conn.execute("PRAGMA temp_store=MEMORY")
+            return conn
+        conn = sqlite3.connect(self._path, check_same_thread=not self._memory)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.executescript(_SCHEMA)
+        return conn
+
+    @property
+    def conn(self) -> sqlite3.Connection:
+        if self._memory:
+            if self._shared is None:
+                self._shared = self._connect()
+            return self._shared
+        conn = getattr(self._local, "conn", None)
+        if conn is None:
+            conn = self._connect()
+            self._local.conn = conn
+        return conn
+
+    def close(self) -> None:
+        """Close this thread's connection (and the shared one for :memory:).
+
+        Needed because a live connection holds a lock: checkpointing or replacing
+        the file underneath an open Store fails with "database is locked".
+        """
+        conn = self._shared if self._memory else getattr(self._local, "conn", None)
+        if conn is not None:
+            conn.close()
+            if self._memory:
+                self._shared = None
+            else:
+                self._local.conn = None
 
     # -- write ---------------------------------------------------------------
 

@@ -1,6 +1,9 @@
 # data — corpus is fetched, never committed
 data/raw/
 data/index.db
+# sqlite sidecars: WAL mode leaves these beside the database
+data/index.db-wal
+data/index.db-shm
 # fitted gate: a generated artifact, like conformal-seg's runs/.
 # Calibration numbers belong in docs/results.md, not as a committed blob.
 data/gate.json
@@ -26,3 +29,15 @@ traces/
 .idea/
 Thumbs.db
 .DS_Store
+
+# serving registry: 135 MB ONNX encoder + the corpus index, built locally by
+# scripts/export_embedder.py and conformal_rag.registry. Ships as a release asset.
+models/
+!models/.gitkeep
+
+# Terraform (state is local and holds account ids; never committed)
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars

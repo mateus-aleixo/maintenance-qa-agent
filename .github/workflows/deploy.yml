@@ -1,0 +1,70 @@
+name: deploy
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # OIDC federation, no stored AWS keys
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Repository variables are set once after `terraform apply` (docs/deploy.md);
+    # until then this job skips instead of failing.
+    if: vars.AWS_ROLE_ARN != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      # models/ is not in git: the ONNX query encoder is 135 MB. The registry
+      # ships as a release asset instead, so the image built here searches the
+      # same index, with the same encoder, as the local one.
+      - name: Fetch the serving registry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${REGISTRY_TAG:-registry-v1}" \
+            --repo "${{ github.repository }}" \
+            --pattern registry.tar.gz --output registry.tar.gz
+          tar -xzf registry.tar.gz
+          test -f models/gate.json && test -f models/embedder/model.onnx
+          echo "registry:" && ls models/
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: build and push
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/conformal-rag
+        run: |
+          docker build -t "$IMAGE:${GITHUB_SHA::12}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${GITHUB_SHA::12}"
+          docker push "$IMAGE:latest"
+
+      - name: point the function at the new image
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/conformal-rag
+        run: |
+          aws lambda update-function-code \
+            --function-name conformal-rag \
+            --image-uri "$IMAGE:${GITHUB_SHA::12}"
+          aws lambda wait function-updated --function-name conformal-rag
+
+      - name: smoke the live endpoint
+        if: vars.API_ENDPOINT != ''
+        run: |
+          for _ in $(seq 1 10); do
+            curl -sf "${{ vars.API_ENDPOINT }}/health" && break
+            sleep 3
+          done
+          curl -sf "${{ vars.API_ENDPOINT }}/health" | grep -q '"status":"ok"'
+          # A deploy that serves no registry is a failed deploy, not a healthy one:
+          # /health passes with an empty models/, so check the gate is loaded.
+          curl -sf "${{ vars.API_ENDPOINT }}/gates" | grep -q '"threshold"'

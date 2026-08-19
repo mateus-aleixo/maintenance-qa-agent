@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from pathlib import Path
 from typing import Protocol, Sequence
 
 import numpy as np
@@ -56,9 +57,47 @@ class BgeEmbedder:
         )
 
 
-def get_embedder(name: str = "hash") -> Embedder:
+class OnnxEmbedder:
+    """The same vectors as BgeEmbedder, without torch.
+
+    Serving has to embed the query with whatever built the index, and pulling
+    sentence-transformers into the container costs about 2 GB for a 33M-parameter
+    encoder. `scripts/export_embedder.py` bakes CLS pooling and L2 normalisation
+    into the graph and checks parity against sentence-transformers before this is
+    allowed to ship: measured max |diff| 2.3e-07, cosine 1.000000.
+
+    A pooling or vocabulary mismatch here would not raise. It would return a vector
+    pointing somewhere else and quietly degrade recall against an index built the
+    other way, which is why the tokenizer travels with the graph.
+    """
+
+    dim = 384
+
+    def __init__(self, model_dir: "Path | str" = "models/embedder", max_length: int = 512):
+        import onnxruntime as ort
+        from tokenizers import Tokenizer
+
+        d = Path(model_dir)
+        self.tokenizer = Tokenizer.from_file(str(d / "tokenizer.json"))
+        self.tokenizer.enable_truncation(max_length=max_length)
+        self.tokenizer.enable_padding()
+        self.session = ort.InferenceSession(
+            str(d / "model.onnx"), providers=["CPUExecutionProvider"]
+        )
+
+    def encode(self, texts: Sequence[str]) -> np.ndarray:
+        encs = self.tokenizer.encode_batch(list(texts))
+        ids = np.array([e.ids for e in encs], dtype=np.int64)
+        mask = np.array([e.attention_mask for e in encs], dtype=np.int64)
+        out = self.session.run(None, {"input_ids": ids, "attention_mask": mask})[0]
+        return np.asarray(out, dtype=np.float32)
+
+
+def get_embedder(name: str = "hash", **kwargs) -> Embedder:
     if name == "hash":
         return HashEmbedder()
     if name == "bge":
         return BgeEmbedder()
+    if name == "onnx":
+        return OnnxEmbedder(**kwargs)
     raise ValueError(f"unknown embedder: {name!r}")

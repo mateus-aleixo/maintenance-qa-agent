@@ -12,8 +12,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Iterator
 
-from pypdf import PdfReader
-
 _WS = re.compile(r"[ \t]+")
 _PAGE_NO = re.compile(r"^\s*(?:page\s+)?\d{1,4}\s*$", re.I)
 _TM_HEADER = re.compile(r"^\s*TM\s+[\d-]+[A-Z]?\s*$", re.I)
@@ -38,6 +36,10 @@ def clean_page(raw: str) -> str:
 
 
 def pdf_pages(path: Path) -> Iterator[tuple[int, str]]:
+    # Imported here, not at module scope: store.py imports Chunk from this
+    # module, so a top-level pypdf import drags a PDF parser into the serving
+    # container, which only ever reads an already-built index.
+    from pypdf import PdfReader
     reader = PdfReader(str(path))
     for i, page in enumerate(reader.pages, start=1):
         text = clean_page(page.extract_text() or "")

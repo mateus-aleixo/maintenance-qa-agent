@@ -17,7 +17,7 @@ confidence statement is not a decision aid*, to three different kinds of data:
 |---|---|---|
 | [conformal-rul](https://github.com/mateus-aleixo/conformal-rul) | sensor sequences | RUL intervals with verified coverage, live on AWS Lambda |
 | [conformal-seg](https://github.com/mateus-aleixo/conformal-seg) | vision | defect masks bounding the missed-defect rate |
-| **conformal-rag** | language | selective QA that abstains at a calibrated error rate |
+| **conformal-rag** | language | selective QA that abstains at a calibrated error rate, retrieval and gate live on AWS Lambda |
 
 The agent in this repo calls the **live conformal-rul API** as one of its tools, so
 the series composes rather than merely rhyming.
@@ -174,6 +174,40 @@ uv run python -m conformal_rag ingest data/raw/*.pdf
 uv run python -m conformal_rag ask "What does low oil pressure at idle indicate?"
 uv run python -m conformal_rag agent "Remaining life for these engine readings: ..."
 ```
+
+## Serving
+
+**Live**: `https://245evfkghe.execute-api.eu-west-1.amazonaws.com`
+
+```bash
+curl "$API/gates"
+curl "$API/retrieve?q=What+does+low+oil+pressure+at+idle+indicate%3F&k=3"
+curl "$API/gate?score=0.05"     # -> abstain, below the calibrated threshold
+```
+
+Torch-free, on the conformal-rul and conformal-seg container pattern: FastAPI over
+onnxruntime, one image that runs under uvicorn locally and unchanged on Lambda.
+`bge-small-en-v1.5` is exported to ONNX with CLS pooling and L2 normalisation baked
+into the graph, checked against sentence-transformers at max |diff| 2.3e-07 before it
+is allowed to ship, because a pooling mismatch does not raise: it returns a vector
+pointing somewhere else and quietly degrades recall against an index built the other
+way.
+
+**The generator is deliberately not hosted.** The sibling repos ship their own
+networks, a few MB of ONNX apiece. This one's is a 14B model, which does not fit in a
+Lambda and is not something a free demo endpoint should pay for per request. So what
+is served is the part that carries the guarantee and is genuinely serverless:
+retrieval, and the calibrated gate. `/ask` returns 503 explaining exactly that, and
+becomes available by pointing `LLM_BASE_URL` at any OpenAI-compatible endpoint, which
+is configuration rather than a different code path.
+
+Splitting `/gate` out from generation is not a workaround. The gate is a total
+function of the score, so anyone can post their own generator's number and get the
+decision this system would make, with the threshold and the measured risk it bought
+returned alongside.
+
+Deployment details, and the three separate ways SQLite fails on Lambda's read-only
+filesystem, are in [docs/deploy.md](docs/deploy.md).
 
 ## Measured and rejected
 
