@@ -1,6 +1,6 @@
 # Results
 
-**No benchmark numbers yet — honestly.** Retrieval recall, answer correctness and
+**No benchmark numbers yet: honestly.** Retrieval recall, answer correctness and
 abstention risk require the manually verified golden set (M1/M4); until then this
 file records only what has actually been run, which is the pipeline working
 end to end.
@@ -25,7 +25,7 @@ with `[4]` resolving to TM-9-8000 p.241. All five hits found by **both** retriev
 set?"* → `INSUFFICIENT EVIDENCE`. Retrieval surfaced only the automotive manual
 (the generator document in the corpus is a parts catalogue with no pre-start prose),
 and the system declined rather than improvising from adjacent text. This is the
-intended behaviour and it happened without the conformal gate even being fitted —
+intended behaviour and it happened without the conformal gate even being fitted:
 the gate makes the refusal rate *calibrated*, the prompt makes it *possible*.
 
 **Agent tool loop.** `calculator` → `17 * 23` → `391`, one step, clean JSON protocol.
@@ -43,7 +43,7 @@ Lambda with a real C-MAPSS cycle:
 ## Retrieval
 
 Golden set: 20 questions (15 answerable, 5 unanswerable), written by **reading the
-source chunks**, not by asking the retriever where it would look — grounding gold on
+source chunks**, not by asking the retriever where it would look: grounding gold on
 the retriever's own top hit would only measure its tie-breaking. Scored at page level
 with ±1 slack, because chunks overlap and a boundary can split an answer.
 Corpus: 1,752 chunks. `python scripts/eval_retrieval.py --embedder {hash,bge}`
@@ -53,7 +53,7 @@ Corpus: 1,752 chunks. `python scripts/eval_retrieval.py --embedder {hash,bge}`
 | `hash` (deterministic placeholder, CI default) | 0.93 | 0.73 | 0.851 | 18/20 |
 | **`bge-small-en-v1.5`** | **1.00** | **0.93** | **0.950** | 19/20 |
 
-Real embeddings fix the one miss — a "what keeps the brakes working if the power
+Real embeddings fix the one miss: a "what keeps the brakes working if the power
 steering fails?" question that the lexical path answered with the wrong page while
 reporting **high** confidence (0.969). Hybrid retrieval is doing real work either
 way: the top hit was found by *both* BM25 and the vector search on 18–19 of 20
@@ -67,7 +67,7 @@ questions, so this is not BM25 with extra steps.
 | `bge` | 0.992 | 0.831 | **0.161** |
 
 **Better retrieval made the abstention signal worse.** Recall went up and the gap
-between answerable and unanswerable questions roughly halved — because a stronger
+between answerable and unanswerable questions roughly halved, because a stronger
 retriever confidently finds *something* topically plausible even when the corpus
 cannot answer the question. Retrieval agreement measures "did my retrievers concur",
 which is not the same as "is the answer in here".
@@ -94,7 +94,7 @@ Three things are scored, all decidable without a judge model:
 | Answers carrying a citation | 14 / 14 = 1.00 | |
 | Median latency | 3.7 s | 3 B model, CPU-class hardware |
 
-Semantic correctness — "is the answer *right*" — is deliberately **not** scored
+Semantic correctness ("is the answer *right*") is deliberately **not** scored
 here. That needs a judge model and a rubric (M4/M5). Approximating it with string
 overlap would produce a number that looks like accuracy and isn't.
 
@@ -108,7 +108,7 @@ confidence could not.**
 
 So the M4 nonconformity score should be built on the generation step, not the
 retrieval step. That is a design decision now supported by evidence rather than by
-taste — and it is the opposite of what the v0 confidence heuristic assumed.
+taste, and it is the opposite of what the v0 confidence heuristic assumed.
 
 **Sample-size caveat, stated plainly:** 5/5 on five questions is not a 100% refusal
 rate. It is "no failures observed in five attempts", whose 95% upper bound is
@@ -118,7 +118,7 @@ calibrated against it.
 
 ### The one over-refusal
 
-`g-05` — *"Why does damping on rebound only force the use of stiffer springs?"* —
+`g-05`: *"Why does damping on rebound only force the use of stiffer springs?"*:
 was refused despite the answer being on the retrieved page. It is the only
 **reasoning**-type question that required combining two sentences rather than
 quoting one. The system errs conservative, which is the right direction for a
@@ -128,7 +128,7 @@ that costs recall.
 
 ## The conformal gate
 
-Golden set grown to **100 questions** (75 answerable, 25 not) — the 20 hand-written
+Golden set grown to **100 questions** (75 answerable, 25 not): the 20 hand-written
 ones plus 80 generated from real chunks (`scripts/gen_golden.py`; its sampling bias is
 documented in that file). Each question scored: retrieve → `support_score` → answer →
 judge against the reference. Threshold fitted on a random half, every number below
@@ -157,7 +157,7 @@ support score, correct vs incorrect answers  0.651  vs  0.625   <- NOT separated
 **The score judges the excerpts, so it can see answerability and is nearly blind to
 correctness.** Conformal risk control bounds a risk its nonconformity score can rank;
 it cannot bound one the score cannot see. With 43% of *answerable* questions answered
-wrongly by a 3 B model — and the judge counting INCOMPLETE as a failure — the selective
+wrongly by a 3 B model (and the judge counting INCOMPLETE as a failure) the selective
 risk floor sits near that base rate regardless of where the threshold goes.
 
 This is the honest ceiling of the design: **the gate controls "should I have answered
@@ -179,14 +179,14 @@ as the entire scale. Conformal calibration wants a continuous score to place a t
 threshold; this gives it a three-way switch, which is why the risk curves are step
 functions with long plateaus. Fixes, in order of honesty: read token logprobs for the
 score, drop the anchors and ask for a bare integer, or sample the judgement several
-times and average. Worth stating plainly — the limitation is in the prompt, not in the
+times and average. Worth stating plainly: the limitation is in the prompt, not in the
 method.
 
 ### What would actually reach α on total error
 
 1. **A stronger generator.** 43% wrong on answerable questions is the dominant term;
    no gate fixes a base rate that high.
-2. **A nonconformity score that predicts correctness** — self-consistency across
+2. **A nonconformity score that predicts correctness**: self-consistency across
    samples, or an entailment check between answer and cited excerpt. Both cost more
    calls, which is the trade to measure next.
 3. Not: a bigger calibration set. That tightens the estimate, it does not move the
@@ -196,7 +196,7 @@ method.
 
 M4 left one question: can a different nonconformity score bound *total* error, not
 just answerability? Four candidates, scored on the same 100 questions, ranked by
-**AUC over correct-vs-incorrect answers** — the threshold-free version of "can a gate
+**AUC over correct-vs-incorrect answers**: the threshold-free version of "can a gate
 built on this work at all". 0.5 is a coin flip.
 
 | score | what it inspects | correct | incorrect | **AUC** | distinct values |
@@ -205,7 +205,7 @@ built on this work at all". 0.5 is a coin flip.
 | `support_v2` | same, no anchors in the prompt | 0.483 | 0.466 | **0.519** | 16 |
 | `groundedness` | **the answer** vs its excerpts | 0.928 | 0.722 | **0.582** | 7 |
 | `self_consistency` | agreement across 3 sampled answers | 0.566 | 0.443 | **0.680** | 70 |
-| **`combined`** | √(groundedness × self-consistency) | — | — | **0.754** | — |
+| **`combined`** | √(groundedness × self-consistency) | n/a | n/a | **0.754** | n/a |
 
 ### My quantisation hypothesis was wrong
 
@@ -214,7 +214,7 @@ that removing them would help. `support_v2` removed them: distinct values went *
 16**, and AUC moved **0.511 → 0.519**. Essentially nothing.
 
 So the anchors caused the *granularity* problem and not the *blindness*. The real
-cause is structural — `support_score` never sees the answer, so it cannot rank whether
+cause is structural: `support_score` never sees the answer, so it cannot rank whether
 the answer is right, no matter how finely it is expressed. Worth recording as a wrong
 call: the fix I proposed would not have worked, and only measuring it showed that.
 
@@ -222,8 +222,8 @@ call: the fix I proposed would not have worked, and only measuring it showed tha
 
 | | ranks correctness | ranks answerability |
 |---|---|---|
-| `groundedness` | weakly (0.582) | **superbly** — 0.840 answerable vs 0.080 not |
-| `self_consistency` | **best single** (0.680) | **backwards** — 0.513 vs 0.612 |
+| `groundedness` | weakly (0.582) | **superbly**, 0.840 answerable vs 0.080 not |
+| `self_consistency` | **best single** (0.680) | **backwards**, 0.513 vs 0.612 |
 
 Their geometric mean beats both (**AUC 0.754**), which is what "complementary" means
 in practice: one asks whether the excerpts support the claim, the other whether the
@@ -231,7 +231,7 @@ model is stable in making it, and the failures are different.
 
 **`self_consistency` ranking answerability backwards is a genuine artefact worth
 naming.** Unanswerable questions score *higher* agreement, because the model
-consistently refuses them — and three identical refusals are perfect agreement. Used
+consistently refuses them, and three identical refusals are perfect agreement. Used
 alone the signal is also non-monotone (see the plot): above a threshold of ~0.45 the
 risk *rises*, as the high-agreement bucket fills with confident repeated errors.
 
@@ -245,7 +245,7 @@ risk *rises*, as the high-agreement bucket fills with confident repeated errors.
 | **M5 (`combined`)** | **0.40** | **0.312** | **64%** |
 
 Ungated risk is 0.540. The combined gate cuts it to **0.312 while still answering 64%
-of questions** — real progress, and still short of the α = 0.2 the project wants.
+of questions**: real progress, and still short of the α = 0.2 the project wants.
 
 **The binding constraint is now unambiguous, and it is not the score.** 43% of
 *answerable* questions are answered wrongly by a 3 B model. A gate can only decline to
@@ -271,7 +271,7 @@ isolates the generator (`scripts/compare_models.py --rejudge`):
 | **3 B** | **7 B** | **0.493** |
 | 7 B | 7 B | 0.360 |
 
-**The 7 B judge is stricter, not softer** — it fails 3 B answers 49.3% of the time
+**The 7 B judge is stricter, not softer**, it fails 3 B answers 49.3% of the time
 where the 3 B judge failed them 42.7%. That is the opposite of the bias I expected,
 and it means the naive comparison *understated* what the bigger model bought:
 
@@ -286,26 +286,26 @@ smaller model.
 
 | | ungated risk | best α met | risk | coverage |
 |---|---|---|---|---|
-| 3 B (7 B-judged) | 0.620 | **none** | — | — |
+| 3 B (7 B-judged) | 0.620 | **none** | n/a | n/a |
 | **7 B** | 0.540 | **0.40** | 0.378 | **74%** |
 
 Coverage at the met threshold rises from 64% (M5's combined score on 3 B) to **74%**,
 on the plain support score alone. The support score's own separation barely moved
-(0.640/0.080 → 0.685/0.060), which is the expected result — it measures the excerpts,
+(0.640/0.080 → 0.685/0.060), which is the expected result, it measures the excerpts,
 and the excerpts did not change.
 
 ### The conclusion, unchanged in direction and sharper in size
 
-A 7 B generator is a **real** improvement — a quarter of the errors gone, like-for-like
-— and **still not enough for α = 0.2**. At a 36% base error rate on answerable
+A 7 B generator is a **real** improvement: a quarter of the errors gone, like-for-like
+, and **still not enough for α = 0.2**. At a 36% base error rate on answerable
 questions, a gate that can only decline to answer cannot get selective risk to 0.2
 without refusing most of the corpus.
 
 The honest reading is that this pipeline needs a generator in a different class, not
-one size step up; and that the calibration machinery has been correct throughout —
+one size step up; and that the calibration machinery has been correct throughout,
 it reported an unreachable target rather than quietly hitting it.
 
-## 14 B — the gate finally meets α = 0.2, for a reason I did not predict
+## 14 B: the gate finally meets α = 0.2, for a reason I did not predict
 
 `qwen2.5:14b-instruct` (9 GB, 57%/43% CPU/GPU on a 6 GB card, ~28 s/question).
 Every generator re-judged by the **same 14 B judge**, so the rows are comparable.
@@ -318,14 +318,14 @@ Every generator re-judged by the **same 14 B judge**, so the rows are comparable
 
 | generator | ungated | best α met | risk | coverage |
 |---|---|---|---|---|
-| 3 B | 0.580 | none | — | — |
+| 3 B | 0.580 | none | n/a | n/a |
 | 7 B | 0.540 | 0.40 | 0.378 | 74% |
 | **14 B** | 0.540 | **0.20** | **0.133** | 30% |
 
 ### The 14 B answers slightly *worse* than the 7 B, and gates far better
 
 Base error goes **up** from 0.347 to 0.373 between 7 B and 14 B, judged identically.
-Yet 14 B is the first configuration to meet α = 0.2 — a target three earlier
+Yet 14 B is the first configuration to meet α = 0.2: a target three earlier
 configurations could not reach at any threshold.
 
 The reason is in the last column of the first table. What improved with scale was not
@@ -335,18 +335,18 @@ markedly better at recognising when the excerpts do not contain the answer, and 
 conformal gate converts exactly that into a guarantee.
 
 **So scaling bought calibration, not correctness.** That is not what "the binding
-constraint is the generator" predicted — the prediction was right about the *outcome*
+constraint is the generator" predicted: the prediction was right about the *outcome*
 and wrong about the *mechanism*.
 
 The cost is coverage: 30% at α = 0.2, against 74% at α = 0.4. The gate reaches the
 target by declining seven questions in ten. That is a real guarantee and a real price,
 and which one matters depends on whether a wrong maintenance answer is worse than no
-answer — for this domain, it is.
+answer: for this domain, it is.
 
 ### Correction: "a bigger judge is stricter" was wrong
 
 The 7 B write-up above concluded the 7 B judge was stricter than the 3 B one and
-inferred a trend. The 14 B judge breaks it — on the *same* 3 B answers:
+inferred a trend. The 14 B judge breaks it: on the *same* 3 B answers:
 
 | judge | base error on 3 B answers |
 |---|---|
@@ -356,11 +356,11 @@ inferred a trend. The 14 B judge breaks it — on the *same* 3 B answers:
 
 The 7 B judge is stricter than **both** its neighbours. There is no monotone
 relationship between judge size and severity; I drew a line through two points and the
-third disqualified it. The practical lesson stands and is in fact strengthened —
-**hold the judge fixed when comparing generators** — but the reason is that judges vary
+third disqualified it. The practical lesson stands and is in fact strengthened:
+**hold the judge fixed when comparing generators**, but the reason is that judges vary
 unpredictably, not that they get harsher with scale.
 
-## The combined score on 14 B — best AUC, worse gate
+## The combined score on 14 B: best AUC, worse gate
 
 The obvious next move was to put M5's combined score on the 14 B and buy back the
 coverage the α = 0.2 gate gives up. It does not work, and *why* is the most useful
@@ -369,9 +369,9 @@ thing measured so far.
 | score | AUC (correct vs incorrect) | best α met | risk | coverage |
 |---|---|---|---|---|
 | **`support_v1`** | 0.697 | **0.15** | **0.133** | 30% |
-| `support_v2` | 0.570 | none | — | — |
-| `groundedness` | 0.785 | none | — | — |
-| `self_consistency` | 0.796 | none | — | — |
+| `support_v2` | 0.570 | none | n/a | n/a |
+| `groundedness` | 0.785 | none | n/a | n/a |
+| `self_consistency` | 0.796 | none | n/a | n/a |
 | **`combined`** | **0.845** | 0.30 | 0.300 | **60%** |
 
 ![Which signal bounds total error on 14 B](figures/gate_14b.png)
@@ -382,18 +382,18 @@ any threshold, while `support_v1` can.
 
 ### AUC and conformal gating measure different things
 
-AUC asks: *pick a correct and an incorrect answer at random — is the correct one scored
+AUC asks: *pick a correct and an incorrect answer at random: is the correct one scored
 higher?* That is a statement about the **whole ordering**. A conformal gate never uses
 the whole ordering. It draws one line and keeps what is above it, so all that matters is
 whether some **top bucket is nearly pure**.
 
 `support_v1` has a pure head. Its top bucket (score = 1.0) carries a risk of 0.133,
 which is why it meets a tight α while ranking worse overall. `combined` spreads its
-correct answers more evenly — better on average, no clean top — and bottoms out at 0.30.
+correct answers more evenly (better on average, no clean top) and bottoms out at 0.30.
 
 `self_consistency` is the extreme case: **AUC 0.796 and a risk of 0.789 at its own top
 threshold.** Its high-agreement bucket is where the model repeats itself, which includes
-repeating a refusal and repeating a mistake — on 14 B its answerability separation is
+repeating a refusal and repeating a mistake: on 14 B its answerability separation is
 **−0.392**, with unanswerable questions scoring a *perfect* 1.000 agreement. Mixing that
 into `combined` is what pollutes the head.
 
@@ -403,27 +403,27 @@ deliver the guarantee.
 
 ### Where it does help
 
-At **α = 0.30**, `combined` answers **60%** of questions against `support_v1`'s 34% —
+At **α = 0.30**, `combined` answers **60%** of questions against `support_v1`'s 34%:
 nearly double the coverage for the same guarantee. So the combined score is the right
 choice for a looser target and the wrong one for a tight target, which is a more precise
 statement than "better score".
 
 Also worth noting: `support_v1`'s AUC rose from **0.511 on 3 B to 0.697 on 14 B**. The
-score did not change — the model's ability to judge its own evidence did, which is the
+score did not change: the model's ability to judge its own evidence did, which is the
 same effect that let 14 B reach α = 0.2 in the first place.
 
-## A score designed for head purity — it did not beat the baseline
+## A score designed for head purity: it did not beat the baseline
 
 The previous section said to select a score by the purity of its top bucket. So: build
-one for that property and see. The design followed from the diagnosis —
+one for that property and see. The design followed from the diagnosis:
 **conjunction instead of averaging** (`min`, so an answer must clear *every* check
 rather than letting one confident signal carry a doubtful one), plus free
 deterministic **vetoes** (a refusal, or a citation pointing at an excerpt never
 supplied, zeroes the score), plus a **refusal-aware consistency** that scores three
 identical refusals 0 rather than 1.
 
-Thirteen rules, evaluated on the objective that actually matters — *maximise coverage
-subject to held-out risk ≤ α* — at α = 0.2, no new model calls.
+Thirteen rules, evaluated on the objective that actually matters: *maximise coverage
+subject to held-out risk ≤ α*: at α = 0.2, no new model calls.
 
 | rule | threshold | test risk | test coverage | meets α | head purity (top 30%) |
 |---|---|---|---|---|---|
@@ -436,7 +436,7 @@ subject to held-out risk ≤ α* — at α = 0.2, no new model calls.
 | `geo(gr, sc)` (M5's) | 1.00 | 0.556 | 18% | ❌ | 0.400 |
 
 **The designed score did not beat the plain support score.** The best conjunction that
-meets α buys **32% coverage against 30%** — two points at n = 50, which is noise. The
+meets α buys **32% coverage against 30%**: two points at n = 50, which is noise. The
 conjunction hypothesis is not vindicated.
 
 ### What it did establish
@@ -445,11 +445,11 @@ conjunction hypothesis is not vindicated.
 and `min(su,gr) + veto` identical to `min(su,gr)`. On 14 B a refused answer already
 scores support ≈ 0, and citation errors are already at zero (M2 measured 0/20 invalid
 citations). The veto fires on nothing. It is free insurance against a failure mode this
-model does not have — worth keeping for a weaker generator, worth knowing it is inert
+model does not have: worth keeping for a weaker generator, worth knowing it is inert
 here.
 
 **Conjunction helps exactly where contamination lives.** `min(gr, sc)` and `geo(gr, sc)`
-score identically badly (0.556, head 0.400) — because `self_consistency`'s head is
+score identically badly (0.556, head 0.400), because `self_consistency`'s head is
 polluted, and neither combining rule can clean a signal that is confidently wrong. You
 cannot fix a bad component by how you combine it.
 
@@ -457,7 +457,7 @@ cannot fix a bad component by how you combine it.
 
 Choosing among thirteen rules on the same test half would be selection bias, so the
 script picks on the **calibration** half and reports the test number. It picked
-`mean(su, gr)` — 58% calibration coverage, met α there — and on held-out data it
+`mean(su, gr)` (58% calibration coverage, met α there) and on held-out data it
 **misses**, risk 0.281 against α = 0.2.
 
 That is the honest headline of this experiment: **the selection procedure itself
@@ -465,11 +465,11 @@ overfits at n = 50.** Had the table been scanned for the best test row, `mean(su
 64% coverage would have looked like a large win over the baseline's 30%. It is not a
 win; it is a rule that fails its guarantee.
 
-**Conclusion:** `support_v1` on the 14 B remains the gate — risk 0.133 at 30% coverage,
+**Conclusion:** `support_v1` on the 14 B remains the gate: risk 0.133 at 30% coverage,
 α = 0.2. Recovering coverage needs more calibration data or a better generator, not a
 cleverer combination of the signals already in hand.
 
-## More hand-written questions — and the real constraint, found at last
+## More hand-written questions: and the real constraint, found at last
 
 52 new questions written by reading 20 prose chunks across pages 65–694, none of which
 the first batch touched (32 answerable, 20 hard negatives). Hand-written total: **72**;
@@ -478,7 +478,7 @@ whole set **152**.
 Two things surfaced while writing them.
 
 **The corpus is smaller than 1,752 chunks suggests.** The second "manual",
-TM 9-6115-641-24P, is a **parts catalogue** — NSN tables, part numbers, figure indexes,
+TM 9-6115-641-24P, is a **parts catalogue**: NSN tables, part numbers, figure indexes,
 essentially no prose. Pages 720+ of TM 9-8000 are a glossary. The usable prose is one
 manual, roughly pages 40–720. That is exactly why 11 of 60 auto-generated questions came
 out as *"what is the part number for the felt gasket"*.
@@ -489,7 +489,7 @@ harder negatives than out-of-domain questions: *"how do I bleed the brakes"*, *"
 torque for the main bearing caps"*, *"what is the firing order"* all sound like they
 belong in a vehicle manual and are genuinely absent from this one.
 
-On the new set alone the gate looked transformed — **65% coverage at α = 0.2**, against
+On the new set alone the gate looked transformed: **65% coverage at α = 0.2**, against
 30% on the mixed set. That comparison is invalid, and checking it is where the real
 answer came from.
 
@@ -508,7 +508,7 @@ Every gate evaluated on the same questions, so only the calibration data varies.
 | 75 random | 75 | 0.58 | 0.250 | 18% | ❌ |
 
 Size does nothing. 25 questions meet α; 75 do not. The apparent 65% was the new set
-being **easier** (ungated risk 0.423 vs 0.540), exactly as suspected — not better
+being **easier** (ungated risk 0.423 vs 0.540), exactly as suspected, not better
 calibration.
 
 ### The actual constraint: the score has a cliff
@@ -525,7 +525,7 @@ else. So the entire achievable risk–coverage curve is:
 | 1.00 | 28% | 0.095 |
 
 **There is no operating point between 33% and 70% coverage.** The score is a three-way
-switch, so the curve is a cliff, and α = 0.2 falls just under the 0.274 plateau — which
+switch, so the curve is a cliff, and α = 0.2 falls just under the 0.274 plateau: which
 forces the gate off the cliff to the 30% side. At α = 0.3 the same gate would answer
 **70%**.
 
@@ -537,10 +537,10 @@ plateau but not the cliff.
 **The open problem, stated precisely:** granularity *and* ranking, together.
 `support_v1` has a pure head and no granularity; `support_v2` fixed the granularity (25
 distinct values) and lost the ranking (AUC 0.570). Neither has both. Token logprobs over
-the score are the obvious route — a continuous quantity by construction, and unlike a
+the score are the obvious route: a continuous quantity by construction, and unlike a
 prompt, one the model cannot round off.
 
-## Token logprobs — the cliff is gone, and a new cost appears
+## Token logprobs: the cliff is gone, and a new cost appears
 
 The open problem was granularity *and* ranking together. Instead of asking the model to
 write a number, ask it a single YES/NO question and read **P(YES)** from the token
@@ -559,11 +559,11 @@ quantity it never writes.
 ### The cliff is gone, but the first attempt still failed
 
 Fitted at exactly α = 0.2 the gate chose threshold **0.000** and scored test risk
-**0.217** — a miss. Not because the score is bad: its risk curve is nearly flat at
+**0.217**: a miss. Not because the score is bad: its risk curve is nearly flat at
 0.15–0.19 across the whole range, so calibration at the boundary lands on the most
 permissive threshold, which is precisely where the estimate is noisiest.
 
-Fitting at a slightly stricter α buys a margin — but the margin must be *chosen*, and
+Fitting at a slightly stricter α buys a margin, but the margin must be *chosen*, and
 choosing it by looking at the test set is the selection bias documented earlier in this
 file. So: three splits. **cal** fits the threshold, **val** picks the margin, **test** is
 seen once. Repeated over 300 random splits, because one 50-item split of 152 is mostly
@@ -578,7 +578,7 @@ noise.
 reliably.** That is the honest summary: not a clean win, a trade with a price.
 
 Two things worth saying about the 90% and 76%. First, conformal risk control promises
-E[risk] ≤ α *in expectation over the calibration draw*, not on every split — neither
+E[risk] ≤ α *in expectation over the calibration draw*, not on every split: neither
 number is evidence of a broken method. Second, the gap between them is real: the logprob
 gate operates near the top of its range where few points fix the threshold, so it is
 more fragile. Its coverage IQR (27–58%) says the same thing.
@@ -623,7 +623,7 @@ buy, because the noise is on the other side of the split.
 
 Two dead ends closed on the way, both worth not repeating:
 
-- **The score is saturated** — median 0.9998, and p75 through p99 all read 1.0000,
+- **The score is saturated**: median 0.9998, and p75 through p99 all read 1.0000,
   with the entire useful threshold range in the last decimal places. This is a true
   description and is *not* the problem: `calibrate_threshold` takes its candidates
   from the observed scores with no interpolation, so the pipeline is invariant to
@@ -721,18 +721,18 @@ for a human with the book open.
 - **A harder hand-written batch.** Every hand-written set lands at 0.30-0.42 error
   while the generated set sits at 0.588. Questions spanning two sections, or
   requiring a figure, would test the gate where it is weakest.
-- **M4** — reranker before/after: recall@5 without vs with the trained cross-encoder.
-- **M4** — abstention: held-out selective risk vs α, answer rate, Mondrian breakdown.
-- **M5** — answer correctness (judge + exact-match subset), cost and latency by provider.
+- **M4**: reranker before/after: recall@5 without vs with the trained cross-encoder.
+- **M4**: abstention: held-out selective risk vs α, answer rate, Mondrian breakdown.
+- **M5**: answer correctness (judge + exact-match subset), cost and latency by provider.
 
 Planned tables (see README roadmap):
 
-- **M1** — retrieval recall@5 on the manually verified golden set (not the seeds).
-- **M4** — reranker before/after: recall@5 without vs with the trained
+- **M1**: retrieval recall@5 on the manually verified golden set (not the seeds).
+- **M4**: reranker before/after: recall@5 without vs with the trained
   cross-encoder, same split, same seed.
-- **M4** — abstention: held-out selective risk vs α, answer rate, per-group
+- **M4**: abstention: held-out selective risk vs α, answer rate, per-group
   (Mondrian) breakdown, and the risk plot.
-- **M5** — end-to-end answer correctness (LLM-judge + exact-match subset), cost
+- **M5**: end-to-end answer correctness (LLM-judge + exact-match subset), cost
   and latency per question by provider.
 
 Rule carried over from conformal-rul: the headline is whatever the data says,

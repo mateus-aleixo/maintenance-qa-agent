@@ -12,6 +12,7 @@ import sqlite3
 import threading
 from collections.abc import Sequence
 from pathlib import Path
+from uuid import uuid4
 
 import numpy as np
 
@@ -47,9 +48,14 @@ class Store:
     lazily opens its own; the schema is CREATE IF NOT EXISTS, so re-running it per
     connection is idempotent.
 
-    `:memory:` is the exception: an in-memory database belongs to its connection, so
-    a per-thread one would be empty. There the single connection is shared with
-    check_same_thread disabled, which is what tests use and what they need.
+    `:memory:` needs care: a plain in-memory database belongs to its connection, so
+    a per-thread one would be empty, but sharing a single connection across threads
+    is not safe either and shows up as an intermittent
+    `sqlite3.InterfaceError: bad parameter or other API misuse` under concurrency.
+    The fix is SQLite's own: a named shared-cache in-memory URI, so every thread
+    opens its OWN connection to the SAME database. A keepalive connection on the
+    instance holds it in existence, because a shared-cache memory database is
+    destroyed when its last connection closes.
     """
 
     def __init__(self, path: Path | str, read_only: bool = False):
@@ -60,7 +66,11 @@ class Store:
         if path.parent and not self._memory and not self._read_only:
             path.parent.mkdir(parents=True, exist_ok=True)
         self._local = threading.local()
-        self._shared: sqlite3.Connection | None = None
+        self._keepalive: sqlite3.Connection | None = None
+        if self._memory:
+            # Unique per Store, so two Store(":memory:") are separate databases.
+            self._uri = f"file:conformal_rag_{uuid4().hex}?mode=memory&cache=shared"
+            self._keepalive = sqlite3.connect(self._uri, uri=True)
         # Touch the property so the creating thread opens its connection and
         # applies the schema once, before any worker thread arrives.
         _ = self.conn
@@ -86,17 +96,17 @@ class Store:
             # not. temp_store=MEMORY keeps scratch off the filesystem entirely.
             conn.execute("PRAGMA temp_store=MEMORY")
             return conn
-        conn = sqlite3.connect(self._path, check_same_thread=not self._memory)
+        if self._memory:
+            conn = sqlite3.connect(self._uri, uri=True)
+            conn.executescript(_SCHEMA)
+            return conn
+        conn = sqlite3.connect(self._path)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(_SCHEMA)
         return conn
 
     @property
     def conn(self) -> sqlite3.Connection:
-        if self._memory:
-            if self._shared is None:
-                self._shared = self._connect()
-            return self._shared
         conn = getattr(self._local, "conn", None)
         if conn is None:
             conn = self._connect()
@@ -109,13 +119,10 @@ class Store:
         Needed because a live connection holds a lock: checkpointing or replacing
         the file underneath an open Store fails with "database is locked".
         """
-        conn = self._shared if self._memory else getattr(self._local, "conn", None)
+        conn = getattr(self._local, "conn", None)
         if conn is not None:
             conn.close()
-            if self._memory:
-                self._shared = None
-            else:
-                self._local.conn = None
+            self._local.conn = None
 
     # -- write ---------------------------------------------------------------
 

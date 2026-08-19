@@ -209,6 +209,13 @@ returned alongside.
 Deployment details, and the three separate ways SQLite fails on Lambda's read-only
 filesystem, are in [docs/deploy.md](docs/deploy.md).
 
+## Documentation
+
+[Results](docs/results.md) ·
+[Architecture](docs/architecture.md) ·
+[Model card](docs/model-card.md) ·
+[Deployment](docs/deploy.md)
+
 ## Measured and rejected
 
 Two planned components were built, measured and then dropped. They are written up
