@@ -29,7 +29,11 @@ def test_case(case):
     elif case["expect"] == "clean":
         assert not report.suspicious, f"{case['id']}: false positive {report.flags}"
     elif case["expect"] == "defused":
-        inner = fence(case["payload"]).removeprefix("<untrusted-data>\n").removesuffix("\n</untrusted-data>")
+        inner = (
+            fence(case["payload"])
+            .removeprefix("<untrusted-data>\n")
+            .removesuffix("\n</untrusted-data>")
+        )
         assert "</untrusted-data>" not in inner
     else:
         pytest.fail(f"unknown expectation {case['expect']!r}")

@@ -23,7 +23,7 @@ serve = [
     "mangum>=0.17",
     "pydantic>=2.6",
 ]
-dev = ["pytest>=8.0", "fastapi>=0.110", "httpx>=0.27", "onnxruntime>=1.18", "tokenizers>=0.20"]
+dev = ["pytest>=8.0", "ruff>=0.4", "fastapi>=0.110", "httpx>=0.27", "onnxruntime>=1.18", "tokenizers>=0.20"]
 
 [project.urls]
 Repository = "https://github.com/mateus-aleixo/conformal-rag"
@@ -39,3 +39,24 @@ packages = ["src/conformal_rag"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Same rule set as conformal-rul and conformal-seg, so the series lints identically.
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# B008: FastAPI declares dependencies as argument defaults. Calling Query() in the
+# signature is the framework's required idiom, not a mutable-default bug.
+"src/conformal_rag/serve/app.py" = ["B008"]
+# E501 only where the long line IS the artifact: prompt text sent verbatim to a
+# model, and a 477-character golden-set fixture. Rewrapping those edits the thing
+# under test. Correctness rules stay on everywhere.
+"src/conformal_rag/guard.py" = ["E501"]
+"src/conformal_rag/scores.py" = ["E501"]
+"scripts/verify_golden.py" = ["E501"]
+# scripts/ are one-off analysis runs whose long lines are print statements.
+"scripts/*.py" = ["E501"]

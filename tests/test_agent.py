@@ -10,7 +10,10 @@ from conformal_rag.tools import make_calculator_tool, make_rul_tool, make_search
 def test_agent_tool_then_final(store, embedder, cfg):
     llm = StubLLM(script=[
         json.dumps({"tool": "search_docs", "args": {"query": "generator starting checks"}}),
-        json.dumps({"final": "Inspect fuel lines, battery electrolyte, ground [tm-generator.pdf p.4]."}),
+        json.dumps(
+            {"final": "Inspect fuel lines, battery electrolyte, ground "
+                      "[tm-generator.pdf p.4]."}
+        ),
     ])
     agent = Agent.build(llm, [make_search_tool(store, embedder, cfg), make_calculator_tool()])
     run = agent.run("What do I check before starting the generator?")

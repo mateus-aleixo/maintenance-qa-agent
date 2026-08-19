@@ -33,8 +33,8 @@ from pathlib import Path
 import numpy as np
 
 from conformal_rag.answer import answer
-from conformal_rag.conformal import ConformalGate, calibrate_threshold, selective_risk
 from conformal_rag.config import DEFAULT
+from conformal_rag.conformal import ConformalGate, calibrate_threshold, selective_risk
 from conformal_rag.embed import get_embedder
 from conformal_rag.judge import judge_answer, loss_from_verdict
 from conformal_rag.llm import get_llm
@@ -49,7 +49,7 @@ def load_sets(paths: list[Path]) -> list[dict]:
     rows = []
     for p in paths:
         if p.exists():
-            rows += [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()]
+            rows += [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
     return rows
 
 

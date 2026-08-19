@@ -89,7 +89,7 @@ def answer(
         return Answer(question, None, True, "no-hits", (), 0.0, None, guard_flags)
 
     if use_support:
-        from .support import support_score        # local: keeps the import cycle out
+        from .support import support_score  # local: keeps the import cycle out
 
         conf = support_score(question, hits, llm)
     else:

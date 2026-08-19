@@ -9,11 +9,11 @@ check, which needs torch and therefore does not belong in CI.
 import json
 import sqlite3
 
-import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
 from conformal_rag.embed import HashEmbedder
+from conformal_rag.serve.app import Bundle as _real_bundle_class
 from conformal_rag.store import Chunk, Store
 
 GATE_MANIFEST = {
@@ -61,10 +61,11 @@ def client(tmp_path_factory, monkeymodule):
 
     from conformal_rag.serve import app as app_module
 
-    # The real bundle loads an ONNX encoder; substitute the deterministic one so
-    # CI needs no 135 MB download. Everything else is the production path.
+    # The real bundle loads a 135 MB ONNX encoder; substitute the deterministic
+    # one so CI needs no download. Patch the CLASS, not the cached bundle()
+    # function, so the caching and the FileNotFoundError -> 503 path stay real.
     class TestBundle:
-        def __init__(self):
+        def __init__(self, _root):
             self.manifest = GATE_MANIFEST
             from conformal_rag.conformal import ConformalGate
 
@@ -72,8 +73,10 @@ def client(tmp_path_factory, monkeymodule):
             self.store = Store(root / "index.db")
             self.embedder = embedder
 
-    monkeymodule.setattr(app_module, "bundle", lambda: TestBundle())
+    monkeymodule.setattr(app_module, "Bundle", TestBundle)
+    app_module.bundle.cache_clear()
     yield TestClient(app_module.app)
+    app_module.bundle.cache_clear()
 
 
 def test_health(client):
@@ -193,7 +196,7 @@ def test_read_only_store_opens_without_writing(tmp_path):
 
     ro = Store(db, read_only=True)
     assert len(ro.bm25("bearing", 5)) == 1
-    with pytest.raises(Exception):
+    with pytest.raises(sqlite3.OperationalError):
         ro.add_chunks([Chunk(doc="d", page=2, ordinal=1, text="nope")])
 
 
@@ -226,3 +229,28 @@ def test_read_only_store_can_run_fts_queries(tmp_path):
     assert len(ro.bm25("crankshaft", 5)) == 1
     assert len(ro.bm25("thermostat", 5)) == 1
     assert ro.conn.execute("PRAGMA temp_store").fetchone()[0] == 2  # 2 == MEMORY
+
+
+def test_empty_registry_degrades_to_503(tmp_path, monkeymodule):
+    """models/ is not committed, so an image can be built without a registry.
+
+    That must fail loudly on the data routes and stay healthy on /health, which is
+    exactly the split the deploy smoke test relies on: /health alone would call a
+    registry-less deploy green.
+    """
+    from conformal_rag.serve import app as app_module
+    from conformal_rag.serve.app import Bundle as _unused  # noqa: F401
+
+    original = app_module.MODEL_ROOT
+    monkeymodule.setattr(app_module, "MODEL_ROOT", tmp_path)
+    # Restore the real Bundle so the missing-manifest path is the one under test.
+    monkeymodule.setattr(app_module, "Bundle", _real_bundle_class)
+    app_module.bundle.cache_clear()
+    try:
+        c = TestClient(app_module.app)
+        assert c.get("/health").status_code == 200
+        for route in ("/gates", "/retrieve?q=oil+pressure", "/gate?score=0.5"):
+            assert c.get(route).status_code == 503, route
+    finally:
+        monkeymodule.setattr(app_module, "MODEL_ROOT", original)
+        app_module.bundle.cache_clear()

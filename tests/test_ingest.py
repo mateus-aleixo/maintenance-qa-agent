@@ -1,4 +1,4 @@
-from conformal_rag.ingest import chunk_pages, clean_page, _find_cut
+from conformal_rag.ingest import _find_cut, chunk_pages, clean_page
 
 
 def test_clean_page_drops_furniture():

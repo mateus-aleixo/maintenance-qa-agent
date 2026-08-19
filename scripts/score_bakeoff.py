@@ -22,7 +22,7 @@ from pathlib import Path
 
 import numpy as np
 
-from conformal_rag.answer import build_prompt, _SYSTEM
+from conformal_rag.answer import _SYSTEM, build_prompt
 from conformal_rag.config import DEFAULT
 from conformal_rag.embed import get_embedder
 from conformal_rag.llm import get_llm
@@ -33,7 +33,6 @@ from conformal_rag.scores import (
     support_score_v2,
 )
 from conformal_rag.store import Store
-from conformal_rag.support import support_score
 
 ROOT = Path(__file__).parent.parent
 
@@ -62,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     cached = {r["id"]: r for r in json.loads(a.cached.read_text())}
     rows = []
     for p in ["golden.jsonl", "golden_generated.jsonl"]:
-        rows += [json.loads(l) for l in (ROOT / "evals" / p).read_text(encoding="utf-8").splitlines() if l.strip()]
+        rows += [json.loads(line) for line in (ROOT / "evals" / p).read_text(encoding="utf-8").splitlines() if line.strip()]
     rows = [r for r in rows if r["id"] in cached]
 
     # Resume: this run costs ~6 model calls per question, so losing it to an

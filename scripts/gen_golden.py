@@ -93,7 +93,7 @@ def main(argv: list[str] | None = None) -> int:
     random.Random(a.seed).shuffle(good)
 
     out, seen_pages, tried = [], set(), 0
-    for cid, doc, page, text in good:
+    for _cid, doc, page, text in good:
         if len(out) >= a.n:
             break
         if page in seen_pages:      # spread across the corpus

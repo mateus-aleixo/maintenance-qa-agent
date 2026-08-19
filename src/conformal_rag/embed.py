@@ -11,8 +11,9 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Protocol, Sequence
+from typing import Protocol
 
 import numpy as np
 
@@ -73,7 +74,7 @@ class OnnxEmbedder:
 
     dim = 384
 
-    def __init__(self, model_dir: "Path | str" = "models/embedder", max_length: int = 512):
+    def __init__(self, model_dir: Path | str = "models/embedder", max_length: int = 512):
         import onnxruntime as ort
         from tokenizers import Tokenizer
 

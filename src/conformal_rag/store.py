@@ -10,8 +10,8 @@ from __future__ import annotations
 import re
 import sqlite3
 import threading
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 import numpy as np
 
@@ -61,7 +61,9 @@ class Store:
             path.parent.mkdir(parents=True, exist_ok=True)
         self._local = threading.local()
         self._shared: sqlite3.Connection | None = None
-        self.conn  # open in the creating thread, applying the schema once
+        # Touch the property so the creating thread opens its connection and
+        # applies the schema once, before any worker thread arrives.
+        _ = self.conn
 
     def _connect(self) -> sqlite3.Connection:
         if self._read_only:
@@ -136,7 +138,7 @@ class Store:
         vecs = np.asarray(vecs, dtype=np.float32)
         self.conn.executemany(
             "INSERT OR REPLACE INTO embeddings (chunk_id, dim, vec) VALUES (?,?,?)",
-            [(int(i), vecs.shape[1], v.tobytes()) for i, v in zip(ids, vecs)],
+            [(int(i), vecs.shape[1], v.tobytes()) for i, v in zip(ids, vecs, strict=True)],
         )
         self.conn.commit()
 
@@ -191,5 +193,3 @@ class Store:
     def count(self) -> int:
         return self.conn.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
 
-    def close(self) -> None:
-        self.conn.close()

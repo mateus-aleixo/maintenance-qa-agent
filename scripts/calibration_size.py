@@ -70,7 +70,6 @@ def main(argv: list[str] | None = None) -> int:
     rng.shuffle(pool)
     test = pool[: a.test_size]
     test_ids = {r["id"] for r in test}
-    rest = [r for r in pool[a.test_size:]]
 
     def avail(rows):
         return [r for r in rows if r["id"] not in test_ids]

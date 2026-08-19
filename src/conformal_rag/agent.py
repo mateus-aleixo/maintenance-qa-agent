@@ -63,7 +63,7 @@ class Agent:
     max_steps: int = 6
 
     @classmethod
-    def build(cls, llm: LLMClient, tools: list[Tool], max_steps: int = 6) -> "Agent":
+    def build(cls, llm: LLMClient, tools: list[Tool], max_steps: int = 6) -> Agent:
         return cls(llm=llm, tools={t.name: t for t in tools}, max_steps=max_steps)
 
     def _system(self) -> str:

@@ -59,7 +59,6 @@ def calibrate_threshold(
     if losses.min() < 0 or losses.max() > 1:
         raise ValueError("losses must be in [0, 1]")
 
-    n = len(scores)
     candidates = np.unique(np.concatenate([scores, [0.0, 1.0]]))
     for lam in candidates:  # ascending: first feasible λ is the smallest
         risk, n_kept = _risk_at(scores, losses, lam)
@@ -83,7 +82,7 @@ class ConformalGate:
         scores: np.ndarray,
         losses: np.ndarray,
         groups: list[str] | None = None,
-    ) -> "ConformalGate":
+    ) -> ConformalGate:
         scores = np.asarray(scores, dtype=float)
         losses = np.asarray(losses, dtype=float)
         self.global_threshold = calibrate_threshold(scores, losses, self.alpha)
@@ -113,7 +112,7 @@ class ConformalGate:
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ConformalGate":
+    def from_dict(cls, d: dict) -> ConformalGate:
         gate = cls(alpha=d["alpha"], min_group=d["min_group"])
         gate.global_threshold = d["global_threshold"]
         gate.group_thresholds = dict(d["group_thresholds"])

@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import time
 from contextlib import contextmanager
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +25,7 @@ class Tracer:
 
     def emit(self, kind: str, **fields: Any) -> None:
         record = {
-            "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+            "ts": datetime.now(UTC).isoformat(timespec="milliseconds"),
             "kind": kind,
             **fields,
         }

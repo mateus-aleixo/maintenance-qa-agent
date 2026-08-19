@@ -33,10 +33,7 @@ _WORD = re.compile(r"[a-z0-9]+")
 
 # Words carrying no claim; keeping them would let two unrelated answers look
 # similar merely for being English.
-_STOP = frozenset("""
-a an the and or but if then than that this these those is are was were be been being
-of in on at to from by for with without into over under as it its
-""".split())
+_STOP = frozenset(["a", "an", "the", "and", "or", "but", "if", "then", "than", "that", "this", "these", "those", "is", "are", "was", "were", "be", "been", "being", "of", "in", "on", "at", "to", "from", "by", "for", "with", "without", "into", "over", "under", "as", "it", "its"])
 
 
 _GROUNDED_SYSTEM = (

@@ -35,7 +35,7 @@ GOLDEN = Path(__file__).parent.parent / "evals" / "golden.jsonl"
 def load_golden(paths: list[Path] | None = None) -> list[dict]:
     rows = []
     for p in paths or [GOLDEN]:
-        rows += [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()]
+        rows += [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
     return rows
 
 

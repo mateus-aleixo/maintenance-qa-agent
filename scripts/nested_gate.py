@@ -78,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
     rows = json.loads(a.scores.read_text())
     rng = random.Random(0)
     print(f"alpha = {a.alpha}   {len(rows)} questions   {a.repeats} random 3-way splits")
-    print(f"  (cal fits the threshold, val picks the margin, test is seen once)\n")
+    print("  (cal fits the threshold, val picks the margin, test is seen once)\n")
     print(f"  {'score':<14}{'met alpha':>11}{'coverage':>20}{'risk':>18}")
 
     summary = {}

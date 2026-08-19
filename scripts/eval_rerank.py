@@ -15,13 +15,13 @@ import statistics
 import time
 from pathlib import Path
 
+from eval_retrieval import load_golden  # noqa: E402  (same directory)
+
 from conformal_rag.config import DEFAULT
 from conformal_rag.embed import get_embedder
 from conformal_rag.rerank import CrossEncoderReranker
 from conformal_rag.retrieve import retrieve
 from conformal_rag.store import Store
-
-from eval_retrieval import load_golden  # noqa: E402  (same directory)
 
 
 def hit_rank(hits, row, slack):
@@ -67,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     rr = CrossEncoderReranker()
     t0 = time.perf_counter()
     re_ranks = [hit_rank(rr.rerank(r["question"], pool, a.k), r, a.slack)
-                for r, pool in zip(rows, pools)]
+                for r, pool in zip(rows, pools, strict=True)]
     t_re = time.perf_counter() - t0
     re = summarise("+ cross-encoder", re_ranks, a.k, t_base + t_re)
 
@@ -76,8 +76,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"\n  delta   recall@{a.k} {d_k:+.2f}   recall@1 {d_1:+.2f}   MRR {re['mrr']-base['mrr']:+.3f}")
     print(f"  cost    +{t_re/len(rows)*1000:.0f} ms per question ({rr.name})")
 
-    rescued = [r["id"] for r, b, x in zip(rows, base_ranks, re_ranks) if not b and x]
-    broken = [r["id"] for r, b, x in zip(rows, base_ranks, re_ranks) if b and not x]
+    rescued = [r["id"] for r, b, x in zip(rows, base_ranks, re_ranks, strict=True) if not b and x]
+    broken = [r["id"] for r, b, x in zip(rows, base_ranks, re_ranks, strict=True) if b and not x]
     if rescued:
         print(f"\n  rescued (missed before, found after): {', '.join(rescued)}")
     if broken:

@@ -35,10 +35,7 @@ ROOT = Path(__file__).parent.parent
 DEFAULT_FILES = ["golden.jsonl", "golden_v2.jsonl", "golden_v3.jsonl"]
 
 STOP = set(
-    "the a an of to in and or is are was were be been being for on at by with that "
-    "this it its as from not no than then so which when what where how why can may "
-    "must into out over under also both each other more most such only same "
-    "they them their there these those your with within while".split()
+    ["the", "a", "an", "of", "to", "in", "and", "or", "is", "are", "was", "were", "be", "been", "being", "for", "on", "at", "by", "with", "that", "this", "it", "its", "as", "from", "not", "no", "than", "then", "so", "which", "when", "what", "where", "how", "why", "can", "may", "must", "into", "out", "over", "under", "also", "both", "each", "other", "more", "most", "such", "only", "same", "they", "them", "their", "there", "these", "those", "your", "with", "within", "while"]
 )
 
 

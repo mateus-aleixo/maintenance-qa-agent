@@ -123,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
               f" {r['distinct_scores']:>9}")
 
     alphas = [0.1, 0.2, 0.3, 0.4, 0.5]
-    print(f"\n  gate on the support score (any-mistake loss)")
+    print("\n  gate on the support score (any-mistake loss)")
     gates = {}
     for name, data in [("3B", three), ("7B", seven)]:
         ung, tab = gate_table(data, alphas)

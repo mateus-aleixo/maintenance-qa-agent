@@ -26,13 +26,20 @@ class RetrieveResponse(BaseModel):
 
 
 class GateInfo(BaseModel):
-    alpha: float = Field(..., description="Bound on the wrong-answer rate among answered questions.")
+    alpha: float = Field(
+        ..., description="Bound on the wrong-answer rate among answered questions."
+    )
     threshold: float
     score: str = Field(..., description="Which nonconformity score the threshold applies to.")
-    generator: str = Field(..., description="The gate is only valid for the generator it was calibrated against.")
+    generator: str = Field(
+        ...,
+        description="The gate is only valid for the generator it was calibrated against.",
+    )
     n_calibration: int
     ungated_risk: float = Field(..., description="Error rate with no gate at all.")
-    held_out_risk: float = Field(..., description="Error rate among answered questions, on held-out data.")
+    held_out_risk: float = Field(
+        ..., description="Error rate among answered questions, on held-out data."
+    )
     coverage: float = Field(..., description="Fraction of questions answered rather than declined.")
     n_test: int
     source_artifact: str

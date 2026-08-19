@@ -50,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = replace(DEFAULT, llm_provider=a.provider)
     store, emb, llm = Store(cfg.db_path), get_embedder(a.embedder), get_llm(cfg)
-    rows = [json.loads(l) for l in GOLDEN.read_text(encoding="utf-8").splitlines() if l.strip()]
+    rows = [json.loads(line) for line in GOLDEN.read_text(encoding="utf-8").splitlines() if line.strip()]
     if a.limit:
         rows = rows[: a.limit]
 

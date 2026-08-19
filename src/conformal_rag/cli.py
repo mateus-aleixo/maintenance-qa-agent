@@ -99,7 +99,11 @@ def cmd_agent(args: argparse.Namespace, cfg: Config) -> int:
 
 def cmd_calibrate(args: argparse.Namespace, cfg: Config) -> int:
     """Fit the gate from a JSONL of {"score": float, "loss": 0|1, "group": str}."""
-    rows = [json.loads(line) for line in Path(args.records).read_text().splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in Path(args.records).read_text().splitlines()
+        if line.strip()
+    ]
     if len(rows) < 20:
         print(f"refusing to calibrate on {len(rows)} records (<20): "
               "a guarantee fitted on nothing is a lie", file=sys.stderr)

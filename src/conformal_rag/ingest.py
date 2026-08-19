@@ -8,9 +8,9 @@ furniture, never rewrite content.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator
 
 _WS = re.compile(r"[ \t]+")
 _PAGE_NO = re.compile(r"^\s*(?:page\s+)?\d{1,4}\s*$", re.I)
