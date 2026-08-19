@@ -5,7 +5,7 @@ abstention risk require the manually verified golden set (M1/M4); until then thi
 file records only what has actually been run, which is the pipeline working
 end to end.
 
-## Verified end to end, 2026-07-31
+## Verified end to end
 
 Corpus: 1,752 chunks from two public-domain US Army technical manuals.
 Model: `qwen2.5:3b-instruct` via local Ollama. Retrieval: hybrid BM25 + vectors,
@@ -40,7 +40,7 @@ Lambda with a real C-MAPSS cycle:
  "risk_band": "healthy", "model": "transformer"}
 ```
 
-## M1 — retrieval, measured 2026-07-31
+## Retrieval
 
 Golden set: 20 questions (15 answerable, 5 unanswerable), written by **reading the
 source chunks**, not by asking the retriever where it would look — grounding gold on
@@ -79,7 +79,7 @@ calibration that quietly certifies confident nonsense. The unanswerable question
 were written to be *plausible* (a torque spec for an engine the corpus does not
 cover) rather than absurd, which is precisely why they are hard to separate.
 
-## M2 — answers, measured 2026-07-31
+## Answers
 
 Same 20 questions through the full pipeline. `qwen2.5:3b-instruct` via local
 Ollama, bge retrieval. `python scripts/eval_answers.py --provider ollama`
@@ -126,7 +126,7 @@ maintenance assistant, but it marks a real ceiling: strict grounding prompts
 suppress inference, and questions needing a short chain of reasoning are where
 that costs recall.
 
-## M4 — the conformal gate, measured 2026-07-31
+## The conformal gate
 
 Golden set grown to **100 questions** (75 answerable, 25 not) — the 20 hand-written
 ones plus 80 generated from real chunks (`scripts/gen_golden.py`; its sampling bias is
@@ -192,7 +192,7 @@ method.
 3. Not: a bigger calibration set. That tightens the estimate, it does not move the
    floor.
 
-## M5 — a correctness-aware score, measured 2026-07-31
+## A correctness-aware score
 
 M4 left one question: can a different nonconformity score bound *total* error, not
 just answerability? Four candidates, scored on the same 100 questions, ranked by
@@ -253,7 +253,7 @@ answer; it cannot make a wrong answer right. Reaching α = 0.2 needs a better
 generator, and no amount of calibration substitutes for one. That is the honest end of
 this line of work, and it is worth more than a tuned number would have been.
 
-## Does a bigger generator move the ceiling? — 2026-07-31
+## Does a bigger generator move the ceiling?
 
 M5 concluded the binding constraint was the generator, not the score. Testing that
 directly: same 100 questions, same corpus, same retrieval, **`qwen2.5:7b-instruct`**
