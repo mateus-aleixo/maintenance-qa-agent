@@ -65,7 +65,7 @@ generator's score to get the decision this system would make.
 
 `agent.py` is a loop: send the conversation, parse one JSON tool call, execute
 it, append the result, repeat until the model emits `final`. Tools are
-`search_docs`, `predict_rul` (the live conformal-rul API) and `calculator`. No
+`search_docs`, `predict_rul` (the live turbofan-rul API) and `calculator`. No
 framework. The tool protocol, the guardrails and the loop are a few hundred
 lines, so when the behaviour is wrong the bug is in this repository and it is
 findable.

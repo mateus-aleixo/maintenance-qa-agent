@@ -31,7 +31,7 @@ the gate makes the refusal rate *calibrated*, the prompt makes it *possible*.
 **Agent tool loop.** `calculator` → `17 * 23` → `391`, one step, clean JSON protocol.
 
 **Cross-project composition.** `predict_rul` called the live
-[conformal-rul](https://github.com/mateus-aleixo/conformal-rul) service on AWS
+[turbofan-rul](https://github.com/mateus-aleixo/turbofan-rul) service on AWS
 Lambda with a real C-MAPSS cycle:
 
 ```json
@@ -735,5 +735,5 @@ Planned tables (see README roadmap):
 - **M5**: end-to-end answer correctness (LLM-judge + exact-match subset), cost
   and latency per question by provider.
 
-Rule carried over from conformal-rul: the headline is whatever the data says,
+Rule carried over from turbofan-rul: the headline is whatever the data says,
 including when the boring baseline wins.

@@ -1,6 +1,6 @@
-# conformal-rag
+# maintenance-qa-agent
 
-[![ci](https://github.com/mateus-aleixo/conformal-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/mateus-aleixo/conformal-rag/actions/workflows/ci.yml)
+[![ci](https://github.com/mateus-aleixo/maintenance-qa-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/mateus-aleixo/maintenance-qa-agent/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -10,17 +10,9 @@ question the corpus does not cover, the system **abstains with a calibrated,
 distribution-free guarantee** on its error rate: conformal risk control applied to
 selective question answering.
 
-Third of a series applying a single principle, *a prediction without a trustworthy
-confidence statement is not a decision aid*, to three different kinds of data:
-
-| repo | modality | the guarantee |
-|---|---|---|
-| [conformal-rul](https://github.com/mateus-aleixo/conformal-rul) | sensor sequences | RUL intervals with verified coverage, live on AWS Lambda |
-| [conformal-seg](https://github.com/mateus-aleixo/conformal-seg) | vision | defect masks bounding the missed-defect rate |
-| **conformal-rag** | language | selective QA that abstains at a calibrated error rate, retrieval and gate live on AWS Lambda |
-
-The agent in this repo calls the **live conformal-rul API** as one of its tools, so
-the series composes rather than merely rhyming.
+Retrieval and the calibrated gate are live on AWS Lambda (see [Serving](#serving)).
+The agent also calls a live remaining-useful-life API, served by
+[turbofan-rul](https://github.com/mateus-aleixo/turbofan-rul), as one of its tools.
 
 ## Results
 
@@ -124,7 +116,7 @@ and answer only above it. Under exchangeability the result is that **the wrong-a
 rate among answered questions is ≤ α**, finite-sample, with no
 distributional assumptions (Angelopoulos et al., 2022; Mohri and Hashimoto, 2024). A
 Mondrian split gives per-question-type thresholds with a small-group fallback, the
-same construction used in conformal-rul for operating regimes.
+same construction turbofan-rul uses for operating regimes.
 
 ## Architecture
 
@@ -185,17 +177,16 @@ curl "$API/retrieve?q=What+does+low+oil+pressure+at+idle+indicate%3F&k=3"
 curl "$API/gate?score=0.05"     # -> abstain, below the calibrated threshold
 ```
 
-Torch-free, on the conformal-rul and conformal-seg container pattern: FastAPI over
-onnxruntime, one image that runs under uvicorn locally and unchanged on Lambda.
+Torch-free: FastAPI over onnxruntime, one image that runs under uvicorn locally and
+unchanged on Lambda.
 `bge-small-en-v1.5` is exported to ONNX with CLS pooling and L2 normalisation baked
 into the graph, checked against sentence-transformers at max |diff| 2.3e-07 before it
 is allowed to ship, because a pooling mismatch does not raise: it returns a vector
 pointing somewhere else and quietly degrades recall against an index built the other
 way.
 
-**The generator is deliberately not hosted.** The sibling repos ship their own
-networks, a few MB of ONNX apiece. This one's is a 14B model, which does not fit in a
-Lambda and is not something a free demo endpoint should pay for per request. So what
+**The generator is deliberately not hosted.** It is a 14B model, which does not fit
+in a Lambda and is not something a free demo endpoint should pay for per request. So what
 is served is the part that carries the guarantee and is genuinely serverless:
 retrieval, and the calibrated gate. `/ask` returns 503 explaining exactly that, and
 becomes available by pointing `LLM_BASE_URL` at any OpenAI-compatible endpoint, which

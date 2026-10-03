@@ -13,7 +13,7 @@ variable "region" {
 variable "github_repo" {
   description = "GitHub repository allowed to deploy via OIDC, as owner/name"
   type        = string
-  default     = "mateus-aleixo/conformal-rag"
+  default     = "mateus-aleixo/maintenance-qa-agent"
 }
 
 # GitHub's OIDC sub claim pins numeric account/repo ids (owner@id/repo@id)

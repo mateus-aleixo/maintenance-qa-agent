@@ -1,14 +1,14 @@
 # Deploying to AWS
 
 The service runs on Lambda behind an HTTP API, from the same container that runs
-locally. This is the conformal-rul deployment, repeated: ECR, Lambda, HTTP API
-Gateway, Terraform, and GitHub Actions authenticating by OIDC with no stored keys.
+locally, on the stack [turbofan-rul](https://github.com/mateus-aleixo/turbofan-rul) uses: ECR, Lambda, HTTP
+API Gateway, Terraform, and GitHub Actions authenticating by OIDC with no stored
+keys. The AWS resources keep the project's original name, `conformal-rag`.
 
 Live: `https://245evfkghe.execute-api.eu-west-1.amazonaws.com`
 
-**The generator is deliberately not hosted.** conformal-rul and conformal-seg ship
-their own networks. This system's is a 14B model, which does not fit in a Lambda and
-is not something a free demo endpoint should pay for per request. What is served is
+**The generator is deliberately not hosted.** It is a 14B model, which does not fit
+in a Lambda and is not something a free demo endpoint should pay for per request. What is served is
 retrieval and the calibrated gate: `/retrieve`, `/gate`, `/gates`. `/ask` returns 503
 with an explanation until an operator sets `LLM_BASE_URL` to any OpenAI-compatible
 endpoint, which is a configuration change rather than a different code path.
@@ -29,10 +29,10 @@ Measured: **cold start ~8 s, warm well under a second**. Cold start is dominated
 pulling a 456 MB image and loading a 33M-parameter ONNX encoder. The function runs at
 2048 MB because Lambda scales vCPU with memory; finishing sooner is not more money.
 
-## Three things that differ from conformal-rul
+## Three things that differ from turbofan-rul
 
 **The OIDC provider is shared, not created.** An IAM OIDC provider is account-global
-and keyed by URL. conformal-rul already created
+and keyed by URL. turbofan-rul's stack already created
 `token.actions.githubusercontent.com` in this account, so `infra/oidc.tf` here reads
 it with a `data` block. Declaring it as a `resource` a second time fails with
 `EntityAlreadyExists`, and worse, a `terraform destroy` in this repo would delete the
@@ -122,4 +122,4 @@ terraform destroy -var budget_email=YOU@example.com
 
 The ECR repository is `force_delete`, so images go with it. Note the shared OIDC
 provider is a `data` source here and is therefore left alone, which is the intended
-behaviour: it belongs to conformal-rul.
+behaviour: it belongs to turbofan-rul's stack.
