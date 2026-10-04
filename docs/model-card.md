@@ -1,4 +1,4 @@
-# Model card — conformal-rag
+# Model card: conformal-rag
 
 ## What it is
 
