@@ -45,7 +45,7 @@ MODEL_ROOT = Path(os.environ.get("MODEL_ROOT", "models"))
 LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "")
 
 app = FastAPI(
-    title="conformal-rag",
+    title="maintenance-qa-agent",
     version=__version__,
     description="Retrieval and a distribution-free abstention gate over industrial "
     "maintenance manuals. Retrieval and the gate are served; generation is not "
