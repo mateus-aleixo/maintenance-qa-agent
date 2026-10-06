@@ -1,0 +1,396 @@
+{
+  "size": "full",
+  "passages": 8841823,
+  "queries": "MS MARCO dev.small",
+  "query_encoder": {
+    "model": "BAAI/bge-small-en-v1.5",
+    "runtime": "onnxruntime, CPU",
+    "latency": {
+      "n": 1000,
+      "p50_ms": 4.37,
+      "p95_ms": 5.76,
+      "p99_ms": 6.51,
+      "mean_ms": 4.49
+    },
+    "min_cosine_vs_gpu_float16": 0.999999
+  },
+  "arms": {
+    "bm25": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.1839,
+        "recall@10": 0.3788,
+        "recall@100": 0.6597,
+        "ndcg@10": 0.2283
+      },
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 50.19,
+        "p95_ms": 96.6,
+        "p99_ms": 130.69,
+        "mean_ms": 55.08
+      },
+      "index": {
+        "passages": 8841823,
+        "postings": 256957354,
+        "avgdl": 38.551,
+        "k1": 0.9,
+        "b": 0.4,
+        "build_s": 49.9,
+        "index_bytes": 2067115384,
+        "build_peak_rss_gb": 4.48
+      }
+    },
+    "exact": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3435,
+        "recall@10": 0.6148,
+        "recall@100": 0.8712,
+        "ndcg@10": 0.4053
+      },
+      "batch_s_all_queries": 17.9
+    },
+    "hnsw_ef128": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3273,
+        "recall@10": 0.5837,
+        "recall@100": 0.8304,
+        "ndcg@10": 0.3855
+      },
+      "overlap@10_vs_exact": 0.9416,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 1.26,
+        "p95_ms": 2.14,
+        "p99_ms": 2.44,
+        "mean_ms": 1.3
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 1466.9,
+        "index_bytes": 5801380218,
+        "build_peak_rss_gb": 8.6,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "hnsw_ef256": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3323,
+        "recall@10": 0.5929,
+        "recall@100": 0.8418,
+        "ndcg@10": 0.3915
+      },
+      "overlap@10_vs_exact": 0.9557,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 2.2,
+        "p95_ms": 3.7,
+        "p99_ms": 4.16,
+        "mean_ms": 2.29
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 1466.9,
+        "index_bytes": 5801380218,
+        "build_peak_rss_gb": 8.6,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "hnsw_ef32": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3068,
+        "recall@10": 0.5502,
+        "recall@100": 0.7763,
+        "ndcg@10": 0.3621
+      },
+      "overlap@10_vs_exact": 0.8872,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.47,
+        "p95_ms": 0.85,
+        "p99_ms": 1.09,
+        "mean_ms": 0.51
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 1466.9,
+        "index_bytes": 5801380218,
+        "build_peak_rss_gb": 8.6,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "hnsw_ef64": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3188,
+        "recall@10": 0.5699,
+        "recall@100": 0.8106,
+        "ndcg@10": 0.3757
+      },
+      "overlap@10_vs_exact": 0.92,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.75,
+        "p95_ms": 1.34,
+        "p99_ms": 1.6,
+        "mean_ms": 0.8
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 1466.9,
+        "index_bytes": 5801380218,
+        "build_peak_rss_gb": 8.6,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "ivfpq_np128": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2685,
+        "recall@10": 0.4992,
+        "recall@100": 0.7645,
+        "ndcg@10": 0.3212
+      },
+      "overlap@10_vs_exact": 0.5748,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 3.86,
+        "p95_ms": 4.31,
+        "p99_ms": 4.53,
+        "mean_ms": 3.87
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np16": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2443,
+        "recall@10": 0.4463,
+        "recall@100": 0.6757,
+        "ndcg@10": 0.2903
+      },
+      "overlap@10_vs_exact": 0.531,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 1.5,
+        "p95_ms": 1.68,
+        "p99_ms": 1.8,
+        "mean_ms": 1.51
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np32": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2559,
+        "recall@10": 0.4714,
+        "recall@100": 0.7141,
+        "ndcg@10": 0.3051
+      },
+      "overlap@10_vs_exact": 0.5507,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 1.85,
+        "p95_ms": 2.08,
+        "p99_ms": 2.24,
+        "mean_ms": 1.86
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np32_rerank": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3059,
+        "recall@10": 0.5297,
+        "recall@100": 0.7141,
+        "ndcg@10": 0.3566
+      },
+      "overlap@10_vs_exact": 0.8338,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 3.84,
+        "p95_ms": 4.48,
+        "p99_ms": 5.05,
+        "mean_ms": 3.89
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np64": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2639,
+        "recall@10": 0.4891,
+        "recall@100": 0.7432,
+        "ndcg@10": 0.3153
+      },
+      "overlap@10_vs_exact": 0.5652,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 2.6,
+        "p95_ms": 2.98,
+        "p99_ms": 3.21,
+        "mean_ms": 2.62
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np64_rerank": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.3169,
+        "recall@10": 0.5543,
+        "recall@100": 0.7432,
+        "ndcg@10": 0.3709
+      },
+      "overlap@10_vs_exact": 0.8679,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 4.19,
+        "p95_ms": 4.66,
+        "p99_ms": 4.89,
+        "mean_ms": 4.21
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np8": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2337,
+        "recall@10": 0.4186,
+        "recall@100": 0.6287,
+        "ndcg@10": 0.2756
+      },
+      "overlap@10_vs_exact": 0.5023,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 1.32,
+        "p95_ms": 1.57,
+        "p99_ms": 1.69,
+        "mean_ms": 1.35
+      },
+      "index": {
+        "passages": 8841823,
+        "build_s": 521.4,
+        "index_bytes": 520832380,
+        "build_peak_rss_gb": 7.39,
+        "threads": 16,
+        "nlist": 16384,
+        "pq_bytes": 48
+      }
+    },
+    "brute": {
+      "skipped": "float32 matrix needs 12.6 GB, over the 4.0 GB budget"
+    },
+    "hybrid_bm25+exact": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2876,
+        "recall@10": 0.5563,
+        "recall@100": 0.8663,
+        "ndcg@10": 0.3489
+      }
+    },
+    "hybrid_bm25+hnsw_ef128": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2798,
+        "recall@10": 0.5406,
+        "recall@100": 0.8586,
+        "ndcg@10": 0.3391
+      },
+      "end_to_end_latency": {
+        "n": 1000,
+        "p50_ms": 56.25,
+        "p95_ms": 102.63,
+        "p99_ms": 137.13,
+        "mean_ms": 61.01
+      },
+      "timed_as": "onnx encode + bm25 + hnsw_ef128 + rrf"
+    },
+    "hybrid_bm25+ivfpq_np64_rerank": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.2752,
+        "recall@10": 0.5252,
+        "recall@100": 0.8352,
+        "ndcg@10": 0.332
+      },
+      "end_to_end_latency": {
+        "n": 1000,
+        "p50_ms": 59.1,
+        "p95_ms": 105.41,
+        "p99_ms": 140.22,
+        "mean_ms": 63.92
+      },
+      "timed_as": "onnx encode + bm25 + ivfpq_np64_rerank + rrf"
+    }
+  },
+  "as_built": null,
+  "machine": {
+    "cpu": "AMD Ryzen 7 6800H with Radeon Graphics",
+    "threads": 16,
+    "ram_gb": 15.2,
+    "python": "3.12.9",
+    "numpy": "2.5.1",
+    "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU"
+  }
+}

@@ -1,0 +1,444 @@
+{
+  "size": "1m",
+  "passages": 1000000,
+  "queries": "MS MARCO dev.small",
+  "query_encoder": {
+    "model": "BAAI/bge-small-en-v1.5",
+    "runtime": "onnxruntime, CPU",
+    "latency": {
+      "n": 1000,
+      "p50_ms": 4.37,
+      "p95_ms": 5.76,
+      "p99_ms": 6.51,
+      "mean_ms": 4.49
+    },
+    "min_cosine_vs_gpu_float16": 0.999999
+  },
+  "arms": {
+    "bm25": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.4215,
+        "recall@10": 0.6406,
+        "recall@100": 0.8446,
+        "ndcg@10": 0.4714
+      },
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 4.7,
+        "p95_ms": 9.36,
+        "p99_ms": 12.61,
+        "mean_ms": 5.2
+      },
+      "index": {
+        "passages": 1000000,
+        "postings": 29049419,
+        "avgdl": 38.526,
+        "k1": 0.9,
+        "b": 0.4,
+        "build_s": 30.7,
+        "index_bytes": 243851904,
+        "build_peak_rss_gb": 2.85
+      }
+    },
+    "brute": {
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 65.1,
+        "p95_ms": 74.3,
+        "p99_ms": 82.64,
+        "mean_ms": 66.35
+      },
+      "matrix_gb": 1.43,
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.643,
+        "recall@10": 0.8558,
+        "recall@100": 0.9681,
+        "ndcg@10": 0.6915
+      }
+    },
+    "exact": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.643,
+        "recall@10": 0.8558,
+        "recall@100": 0.9681,
+        "ndcg@10": 0.6915
+      },
+      "batch_s_all_queries": 29.7
+    },
+    "hnsw_ef128": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.6289,
+        "recall@10": 0.8355,
+        "recall@100": 0.9437,
+        "ndcg@10": 0.6759
+      },
+      "overlap@10_vs_exact": 0.9638,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 1.43,
+        "p95_ms": 2.11,
+        "p99_ms": 2.38,
+        "mean_ms": 1.44
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 235.7,
+        "index_bytes": 656132614,
+        "build_peak_rss_gb": 4.34,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "hnsw_ef256": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.6328,
+        "recall@10": 0.8419,
+        "recall@100": 0.9519,
+        "ndcg@10": 0.6804
+      },
+      "overlap@10_vs_exact": 0.9735,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 2.56,
+        "p95_ms": 3.79,
+        "p99_ms": 4.14,
+        "mean_ms": 2.6
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 235.7,
+        "index_bytes": 656132614,
+        "build_peak_rss_gb": 4.34,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "hnsw_ef32": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.6012,
+        "recall@10": 0.7999,
+        "recall@100": 0.9002,
+        "ndcg@10": 0.6465
+      },
+      "overlap@10_vs_exact": 0.9172,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.52,
+        "p95_ms": 0.79,
+        "p99_ms": 0.92,
+        "mean_ms": 0.53
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 235.7,
+        "index_bytes": 656132614,
+        "build_peak_rss_gb": 4.34,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "hnsw_ef64": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.619,
+        "recall@10": 0.8237,
+        "recall@100": 0.9293,
+        "ndcg@10": 0.6656
+      },
+      "overlap@10_vs_exact": 0.9463,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.83,
+        "p95_ms": 1.21,
+        "p99_ms": 1.43,
+        "mean_ms": 0.84
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 235.7,
+        "index_bytes": 656132614,
+        "build_peak_rss_gb": 4.34,
+        "threads": 16,
+        "m": 32,
+        "ef_construction": 100
+      }
+    },
+    "ivfpq_np128": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5476,
+        "recall@10": 0.7644,
+        "recall@100": 0.9062,
+        "ndcg@10": 0.5962
+      },
+      "overlap@10_vs_exact": 0.6026,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 1.68,
+        "p95_ms": 1.89,
+        "p99_ms": 2.03,
+        "mean_ms": 1.67
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np16": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5012,
+        "recall@10": 0.6888,
+        "recall@100": 0.8078,
+        "ndcg@10": 0.5426
+      },
+      "overlap@10_vs_exact": 0.561,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.36,
+        "p95_ms": 0.43,
+        "p99_ms": 0.48,
+        "mean_ms": 0.37
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np32": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5225,
+        "recall@10": 0.7231,
+        "recall@100": 0.8516,
+        "ndcg@10": 0.567
+      },
+      "overlap@10_vs_exact": 0.581,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.52,
+        "p95_ms": 0.64,
+        "p99_ms": 0.7,
+        "mean_ms": 0.53
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np32_rerank": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5849,
+        "recall@10": 0.769,
+        "recall@100": 0.8516,
+        "ndcg@10": 0.6259
+      },
+      "overlap@10_vs_exact": 0.8501,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 2.46,
+        "p95_ms": 2.98,
+        "p99_ms": 3.82,
+        "mean_ms": 2.52
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np64": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.537,
+        "recall@10": 0.747,
+        "recall@100": 0.8835,
+        "ndcg@10": 0.5839
+      },
+      "overlap@10_vs_exact": 0.5944,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.9,
+        "p95_ms": 1.07,
+        "p99_ms": 1.19,
+        "mean_ms": 0.9
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np64_rerank": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.6047,
+        "recall@10": 0.7975,
+        "recall@100": 0.8835,
+        "ndcg@10": 0.6481
+      },
+      "overlap@10_vs_exact": 0.8886,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 2.65,
+        "p95_ms": 2.92,
+        "p99_ms": 3.13,
+        "mean_ms": 2.66
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "ivfpq_np8": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.4687,
+        "recall@10": 0.6399,
+        "recall@100": 0.7464,
+        "ndcg@10": 0.5061
+      },
+      "overlap@10_vs_exact": 0.5284,
+      "search_latency": {
+        "n": 1000,
+        "p50_ms": 0.28,
+        "p95_ms": 0.36,
+        "p99_ms": 0.41,
+        "mean_ms": 0.29
+      },
+      "index": {
+        "passages": 1000000,
+        "build_s": 106.3,
+        "index_bytes": 62717620,
+        "build_peak_rss_gb": 3.88,
+        "threads": 16,
+        "nlist": 4096,
+        "pq_bytes": 48
+      }
+    },
+    "hybrid_bm25+exact": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5665,
+        "recall@10": 0.8119,
+        "recall@100": 0.9703,
+        "ndcg@10": 0.6226
+      },
+      "end_to_end_latency": {
+        "n": 1000,
+        "p50_ms": 74.86,
+        "p95_ms": 85.24,
+        "p99_ms": 92.71,
+        "mean_ms": 76.17
+      },
+      "timed_as": "onnx encode + bm25 + brute + rrf"
+    },
+    "hybrid_bm25+hnsw_ef128": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5592,
+        "recall@10": 0.8043,
+        "recall@100": 0.9677,
+        "ndcg@10": 0.6152
+      },
+      "end_to_end_latency": {
+        "n": 1000,
+        "p50_ms": 10.76,
+        "p95_ms": 15.63,
+        "p99_ms": 19.38,
+        "mean_ms": 11.26
+      },
+      "timed_as": "onnx encode + bm25 + hnsw_ef128 + rrf"
+    },
+    "hybrid_bm25+ivfpq_np64_rerank": {
+      "quality": {
+        "queries": 6980,
+        "mrr@10": 0.5474,
+        "recall@10": 0.7918,
+        "recall@100": 0.9567,
+        "ndcg@10": 0.6029
+      },
+      "end_to_end_latency": {
+        "n": 1000,
+        "p50_ms": 11.97,
+        "p95_ms": 16.9,
+        "p99_ms": 20.49,
+        "mean_ms": 12.49
+      },
+      "timed_as": "onnx encode + bm25 + ivfpq_np64_rerank + rrf"
+    }
+  },
+  "as_built": {
+    "size": "1m",
+    "db_bytes": 3002290176,
+    "chunks": 1000000,
+    "retrieve": {
+      "n": 20,
+      "p50_ms": 4911.44,
+      "p95_ms": 5815.38,
+      "p99_ms": 6246.26,
+      "mean_ms": 4847.74
+    },
+    "fts5_bm25": {
+      "n": 20,
+      "p50_ms": 1225.21,
+      "p95_ms": 2285.6,
+      "p99_ms": 2486.36,
+      "mean_ms": 1232.47
+    },
+    "vector_search": {
+      "n": 20,
+      "p50_ms": 3560.63,
+      "p95_ms": 3701.33,
+      "p99_ms": 3728.54,
+      "mean_ms": 3574.6
+    },
+    "peak_rss_gb": 3.34
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 7 6800H with Radeon Graphics",
+    "threads": 16,
+    "ram_gb": 15.2,
+    "python": "3.12.9",
+    "numpy": "2.5.1",
+    "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU"
+  }
+}

@@ -200,10 +200,24 @@ returned alongside.
 Deployment details, and the three separate ways SQLite fails on Lambda's read-only
 filesystem, are in [docs/deploy.md](docs/deploy.md).
 
+## Retrieval at scale
+
+Brute force is the right call at 1,752 chunks. [docs/scale.md](docs/scale.md)
+measures where it stops being one, with the same retrieval code pointed at MS
+MARCO's 8.8 million passages. Unchanged, the served path takes 4.9 s a query at a
+million passages, almost all of it re-reading every vector from SQLite and running
+FTS5 queries that match any passage containing "what" or "the". An HNSW index
+returns 94% of the exact top 10 in 1.3 ms on all 8.8 million passages, from 5.4 GB
+of RAM, and IVF with product quantisation holds them in 497 MB. Fusing BM25 into the
+dense ranking lowers MRR@10 at every size, which leaves open whether fusion earns its
+place on the manuals. BM25 and the encoder both reproduce their published MS MARCO
+scores to within 0.003.
+
 ## Documentation
 
 [Results](docs/results.md) ·
 [Architecture](docs/architecture.md) ·
+[Retrieval at scale](docs/scale.md) ·
 [Model card](docs/model-card.md) ·
 [Deployment](docs/deploy.md)
 

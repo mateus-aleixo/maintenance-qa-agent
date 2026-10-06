@@ -49,7 +49,8 @@ of failure.
    normalised inside the graph.
 3. **BM25** over FTS5 and **cosine** over the vector table run independently.
    The vector search is brute force: a few thousand chunks is milliseconds of
-   NumPy and has no index to corrupt or rebuild.
+   NumPy and has no index to corrupt or rebuild. [scale.md](scale.md) measures
+   where that stops holding.
 4. **Reciprocal rank fusion** merges them, `score = Σ 1/(k + rank)`. RRF needs no
    score normalisation across heterogeneous retrievers, which is exactly the
    BM25-versus-cosine situation.
