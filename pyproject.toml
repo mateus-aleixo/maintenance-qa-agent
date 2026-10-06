@@ -23,6 +23,9 @@ serve = [
     "mangum>=0.17",
     "pydantic>=2.6",
 ]
+# The MS MARCO scale benchmark in scale/. Embedding 8.8 million passages also needs a
+# CUDA build of torch, installed by hand: see scale/README.md.
+scale = ["sentence-transformers>=3.0", "faiss-cpu>=1.8", "PyStemmer>=2.2", "bm25s>=0.2"]
 dev = ["pytest>=8.0", "ruff>=0.4", "fastapi>=0.110", "httpx>=0.27", "onnxruntime>=1.18", "tokenizers>=0.20"]
 
 [project.urls]
@@ -39,10 +42,12 @@ packages = ["src/conformal_rag"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# scale/ is a top-level package beside src/, imported by its tests.
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100
-src = ["src", "tests"]
+src = ["src", "tests", "."]
 
 [tool.ruff.lint]
 # Same rule set as turbofan-rul and defect-segmentation.

@@ -7,6 +7,9 @@ data/index.db-shm
 # fitted gate: a generated artifact, like conformal-seg's runs/.
 # Calibration numbers belong in docs/results.md, not as a committed blob.
 data/gate.json
+# MS MARCO for the scale benchmark: licensed for non-commercial research only, and
+# about 25 GB once embedded and indexed. `python -m scale.fetch` rebuilds it.
+data/msmarco/
 *.pdf
 
 # python

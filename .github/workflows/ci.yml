@@ -19,7 +19,7 @@ jobs:
       - name: Install
         run: pip install -e ".[dev]"
       - name: Lint
-        run: ruff check src tests scripts
+        run: ruff check src tests scripts scale
       - name: Test (deterministic — no models, no network)
         run: pytest
 
