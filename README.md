@@ -4,119 +4,116 @@
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-**Retrieval-augmented question answering over industrial maintenance manuals that
-declines the questions it cannot answer.** Rather than producing a fluent answer to a
-question the corpus does not cover, the system **abstains with a calibrated,
-distribution-free guarantee** on its error rate: conformal risk control applied to
-selective question answering.
+Question answering over industrial maintenance manuals that declines the questions it
+cannot answer. It uses retrieval-augmented generation (RAG), and a confidence gate
+calibrated with conformal risk control decides whether to answer. The gate gives a
+distribution-free bound on the error rate among the questions it does answer.
 
-Retrieval and the calibrated gate are live on AWS Lambda (see [Serving](#serving)).
-The agent also calls a live remaining-useful-life API, served by
+Retrieval and the calibrated gate are live on AWS Lambda (see [Serving](#serving)). The
+agent can also call a live remaining-useful-life API, served by
 [turbofan-rul](https://github.com/mateus-aleixo/turbofan-rul), as one of its tools.
 
 ## Results
 
-Full numbers in [`docs/results.md`](docs/results.md). Thresholds are fitted on one
-half of the question pool and every figure is reported from the other half.
+Full numbers are in [`docs/results.md`](docs/results.md). Thresholds are fitted on one half
+of the question pool, and every figure is reported on the other half.
 
 On the 100-question pool:
 
-| risk being bounded | ungated | gated | |
+| risk being bounded | without the gate | with the gate | target |
 |---|---|---|---|
-| answered a question the corpus **cannot** answer | 0.260 | **0.031** at 64% coverage | ✅ α = 0.1 |
-| **any** mistake (unanswerable *or* wrong answer) | 0.540 | **0.312** at 64% coverage | ⚠️ α = 0.4, not 0.2 |
+| answering a question the corpus cannot answer | 0.260 | 0.031 at 64% coverage | met at α = 0.1 |
+| any mistake (an unanswerable question or a wrong answer) | 0.540 | 0.312 at 64% coverage | met at α = 0.4, not at 0.2 |
 
-A conformal gate can only bound a risk that its score can *rank*, and the first score
-judged the retrieved excerpts rather than the answer. Replacing it with a score that
-looks at what the model actually said, namely agreement across sampled answers
-combined with whether the answer is grounded in its own citations, raises the ability
-to rank correctness from **AUC 0.51, a coin flip, to 0.75**, and pulls the
-any-mistake risk from 0.540 to **0.312 while still answering 64% of questions**.
+A conformal gate can only bound a risk that its score can rank. The first score only
+judged the retrieved excerpts. The current score looks at what the model actually said:
+it combines agreement across sampled answers with whether the answer is supported by its
+own citations. This raised the AUC for ranking correct answers from 0.51, no better than
+chance, to 0.75, and lowered the any-mistake risk from 0.540 to 0.312 while still
+answering 64% of questions.
 
-## Four findings
+## Findings
 
-### 1. Scaling bought calibration, not correctness
+### 1. The larger model was better calibrated, but not more accurate
 
-α = 0.2 becomes reachable at 14 B, and not for the reason predicted. Every
-generator re-judged by the same judge:
+At 14B, α = 0.2 becomes reachable, but for an unexpected reason. Every generator, re-judged
+by the same judge:
 
-| generator | base error | support on *unanswerable* | best α met | coverage |
+| generator | base error | support on unanswerable questions | best α met | coverage |
 |---|---|---|---|---|
-| 3 B | 0.427 | 0.080 | none | |
-| 7 B | **0.347** | 0.060 | 0.40 | 74% |
-| 14 B | 0.373 | **0.020** | **0.20** | 30% |
+| 3B | 0.427 | 0.080 | none | |
+| 7B | 0.347 | 0.060 | 0.40 | 74% |
+| 14B | 0.373 | 0.020 | 0.20 | 30% |
 
-The 14 B model answers *slightly worse* than the 7 B and gates far better. What scale
-improved was not accuracy but the model's judgement about its own evidence: it is
-much better at recognising when the excerpts cannot answer the question, and a
-conformal gate converts exactly that into a guarantee.
+The 14B model answers slightly worse than the 7B model, but its gate works far better.
+What scale improved was the model's judgement about its own evidence. It is much better at
+recognising when the excerpts cannot answer the question, and the conformal gate turns
+exactly that into a guarantee.
 
-The price is coverage. The gate meets its target by declining seven questions in ten.
-Whether that is the right trade depends on whether a wrong maintenance answer is
-worse than no answer. Here it is.
+The cost is coverage: to meet its target, the gate declines seven questions in ten.
+Whether that is a good trade depends on whether a wrong maintenance answer is worse than
+no answer, which it is here.
 
-### 2. The binding constraint was score quantisation, not data volume
+### 2. Coverage was limited by how few values the score could take
 
-Coverage sat at 30% because a score the model *writes* takes only 9 distinct values
-across 152 questions, 143 of them on just three values. The risk-coverage curve was
-therefore a cliff, with nothing available between 33% and 70% coverage. That single
-fact explains what four earlier experiments had blamed on other causes: too little
-calibration data, an impure score head, a smaller generator, a worse combination
+Coverage stayed at 30% because a score that the model writes as text takes only 9 distinct
+values across 152 questions, and 143 of them fall on just three values. The risk-coverage
+curve was therefore a cliff, with nothing between 33% and 70% coverage. This one fact
+explains what four earlier experiments had put down to other causes: too little
+calibration data, an impure score head, a smaller generator, and a worse combination
 rule.
 
-The fix was to stop letting the model write the number. Ask one YES/NO question and
-read **P(YES)** from the token distribution, which is continuous by construction and
-not something a model can round off. Granularity goes from 9 to **23** distinct
-values, AUC from 0.697 to **0.821**, and mean coverage at α = 0.2 from **29% to
-45%** (300 nested splits, margin chosen on validation, test seen once).
+The fix was to stop asking the model to write the number. The gate now asks one yes/no
+question and reads P(YES) from the token probabilities, which is continuous and cannot be
+rounded off by the model. The number of distinct values goes from 9 to 23, the AUC from
+0.697 to 0.821, and the mean coverage at α = 0.2 from 29% to 45% (300 nested splits,
+margin chosen on validation, test set used once).
 
-It is a trade rather than a free win: the logprob gate holds α on **76%** of
-splits against the written score's 90%, because it operates near the top of its range
-where few points fix the threshold. Coverage that was *unreachable at any threshold*
-becomes reachable at the cost of a less stable one.
+This has a cost. The logprob gate holds α on 76% of splits, against 90% for the written
+score, because it operates near the top of its range, where only a few points fix the
+threshold. Coverage that no threshold could reach before becomes reachable, but with a
+less stable threshold.
 
-Rescored on an expanded 206-question pool, that trade largely dissolves: **63%
-coverage**, with the interquartile range down from 31 points wide to 9, and the hold
-rate unchanged at 77%. The gate had been over-conservative for want of calibration
-data, running at risk 0.107 against a budget of 0.20. What the extra data buys is
-permission to spend the budget.
+On an expanded pool of 206 questions, most of that cost goes away: coverage is 63%, the
+interquartile range narrows from 31 points to 9, and the hold rate stays at 77%. The gate
+had been too conservative because it had too little calibration data, running at a risk
+of 0.107 against a budget of 0.20. With more data it can use the budget it has.
 
-### 3. Choose a nonconformity score by the purity of its head, not by AUC
+### 3. A score with a better AUC can be worse for the gate
 
-This is the sharpest methodological result here. A combined groundedness ×
-self-consistency signal ranks correctness far better, **AUC 0.845 against 0.697**,
-and *cannot* meet α = 0.2 at any threshold, while the weaker-ranking score can.
+A combined groundedness × self-consistency score ranks correct answers far better (AUC
+0.845 against 0.697), yet it cannot meet α = 0.2 at any threshold, while the score with
+the lower AUC can.
 
-AUC describes the whole ordering. A conformal gate draws one line and keeps what sits
-above it, so the only property that matters is whether some **top bucket is nearly
-pure**. Selecting a score on AUC picks the score that cannot deliver the guarantee.
-At a looser α = 0.30 the combined score is the right pick after all, at 60%
-coverage against 34%.
+AUC describes the whole ordering. A conformal gate draws one line and keeps what is above
+it, so what matters is whether some top bucket of the score is nearly pure. Choosing a
+score by AUC can therefore pick one that cannot deliver the guarantee. At a looser
+α = 0.30, the combined score is the better choice, with 60% coverage against 34%.
 
-### 4. Hold the judge fixed when comparing generators
+### 4. The judge has to stay fixed when comparing generators
 
-Swapping the model swaps the **judge** as well, and judges vary unpredictably: the
-7 B judge is stricter than both the 3 B and the 14 B. This cost a wrong conclusion
-before it was caught, and every generator comparison above is re-judged by one fixed
-judge for that reason.
+Changing the model also changes the judge, and judges vary in ways that are hard to
+predict: the 7B judge is stricter than both the 3B and the 14B. This led to a wrong
+conclusion before it was noticed, so every generator comparison above is re-judged by one
+fixed judge.
 
-## Why abstention, and why conformal
+## Why abstain, and why conformal
 
-RAG systems fail worst on the questions they cannot answer. Retrieval returns
-something vaguely related, the model writes a fluent paragraph, and the reader has no
-way to tell it is wrong. Confidence heuristics ("the model seemed unsure") carry no
+RAG systems fail worst on the questions they cannot answer. Retrieval returns something
+loosely related, the model writes a fluent paragraph, and the reader has no way to tell
+that it is wrong. Confidence heuristics, such as the model seeming unsure, come with no
 guarantee.
 
-Conformal risk control does. Given a calibration set of questions labelled
-answered-correctly or answered-wrongly, choose the confidence threshold
+Conformal risk control does give one. Given a calibration set of questions labelled as
+answered correctly or wrongly, it chooses the confidence threshold
 
 λ̂ = inf { λ : (n/(n+1)) · R̂(λ) + 1/(n+1) ≤ α }
 
-and answer only above it. Under exchangeability the result is that **the wrong-answer
-rate among answered questions is ≤ α**, finite-sample, with no
-distributional assumptions (Angelopoulos et al., 2022; Mohri and Hashimoto, 2024). A
-Mondrian split gives per-question-type thresholds with a small-group fallback, the
-same construction turbofan-rul uses for operating regimes.
+and answers only above it. Under exchangeability, the wrong-answer rate among answered
+questions is then at most α, in finite samples and with no assumptions about the
+distribution (Angelopoulos et al., 2022; Mohri and Hashimoto, 2024). A Mondrian split gives
+a separate threshold for each question type, with a fallback for small groups, the same
+construction turbofan-rul uses for operating regimes.
 
 ## Architecture
 
@@ -134,28 +131,27 @@ question ──> hybrid retrieval (RRF) ──> [rerank: measured, not adopted]
         agent loop (from scratch): search_docs · predict_rul (live API) · calculator
 ```
 
-Design choices, deliberately boring where boring is right:
+Design choices:
 
-- **Framework-free.** The agent loop, tool protocol, guardrails and conformal gate
-  are a few hundred lines of plain Python. No LangChain. When the behaviour is wrong,
-  the bug is in this repository, and it is findable.
-- **SQLite for everything at rest.** FTS5 provides BM25; embeddings live as blobs and
-  are searched with NumPy. The corpus is thousands of chunks rather than billions, so
-  brute force takes milliseconds and has no failure modes. One file, deploys
-  anywhere.
-- **Provider-agnostic LLM client.** Local [Ollama](https://ollama.com) by default,
-  any OpenAI-compatible endpoint via environment variables, and a deterministic stub
-  for tests, so CI runs the full suite with no model downloads and no API spend.
-- **Security is tested, not claimed.** `evals/injection_cases.jsonl` embeds
-  adversarial instructions inside corpus documents, and CI asserts that the system
-  treats retrieved text as data rather than as orders.
+- **No framework.** The agent loop, tool protocol, guardrails and conformal gate are a few
+  hundred lines of plain Python, without LangChain, so when the behaviour is wrong the bug
+  is in this repository and can be found.
+- **SQLite for all stored data.** FTS5 provides BM25, and embeddings are stored as blobs
+  and searched with NumPy. The corpus has thousands of chunks, so brute-force search takes
+  milliseconds and has little that can go wrong. It is a single file and deploys anywhere.
+- **Any LLM provider.** Local [Ollama](https://ollama.com) by default, any
+  OpenAI-compatible endpoint through environment variables, and a deterministic stub for
+  tests, so CI runs the full suite with no model downloads and no API costs.
+- **Prompt-injection tests.** `evals/injection_cases.jsonl` embeds adversarial
+  instructions in corpus documents, and CI checks that the system treats retrieved text as
+  data and does not follow instructions found in it.
 
 ## Corpus
 
-Public-domain **US Army technical manuals** (works of the US federal government,
-17 U.S.C. §105), for example TM 9-8000 *Principles of Automotive Vehicles*. Real,
-messy, industrial PDFs. `scripts/fetch_corpus.py` downloads them, and raw PDFs stay
-out of git.
+Public-domain US Army technical manuals (works of the US federal government, 17 U.S.C.
+§105), for example TM 9-8000 *Principles of Automotive Vehicles*. They are real industrial
+PDFs, with all the mess that comes with them. `scripts/fetch_corpus.py` downloads them, and
+the raw PDFs are kept out of git.
 
 ## Quickstart
 
@@ -169,7 +165,7 @@ uv run python -m conformal_rag agent "Remaining life for these engine readings: 
 
 ## Serving
 
-**Live**: `https://245evfkghe.execute-api.eu-west-1.amazonaws.com`
+Live: `https://245evfkghe.execute-api.eu-west-1.amazonaws.com`
 
 ```bash
 curl "$API/gates"
@@ -177,41 +173,37 @@ curl "$API/retrieve?q=What+does+low+oil+pressure+at+idle+indicate%3F&k=3"
 curl "$API/gate?score=0.05"     # -> abstain, below the calibrated threshold
 ```
 
-Torch-free: FastAPI over onnxruntime, one image that runs under uvicorn locally and
-unchanged on Lambda.
-`bge-small-en-v1.5` is exported to ONNX with CLS pooling and L2 normalisation baked
-into the graph, checked against sentence-transformers at max |diff| 2.3e-07 before it
-is allowed to ship, because a pooling mismatch does not raise: it returns a vector
-pointing somewhere else and quietly degrades recall against an index built the other
-way.
+The service does not need PyTorch: it is FastAPI over onnxruntime, in one image that runs
+under uvicorn locally and unchanged on Lambda. `bge-small-en-v1.5` is exported to ONNX with
+CLS pooling and L2 normalisation built into the graph, and it is checked against
+sentence-transformers (maximum absolute difference 2.3e-07) before it can ship. A pooling
+mismatch would not raise an error. It would return vectors that point somewhere else and
+quietly lower recall against an index built the other way.
 
-**The generator is deliberately not hosted.** It is a 14B model, which does not fit
-in a Lambda and is not something a free demo endpoint should pay for per request. So what
-is served is the part that carries the guarantee and is genuinely serverless:
-retrieval, and the calibrated gate. `/ask` returns 503 explaining exactly that, and
-becomes available by pointing `LLM_BASE_URL` at any OpenAI-compatible endpoint, which
-is configuration rather than a different code path.
+The generator is not hosted. It is a 14B model, which does not fit in a Lambda function
+and would be expensive to run per request for a free demo. The service therefore hosts the
+parts that carry the guarantee and can run serverless: retrieval and the calibrated gate.
+`/ask` returns 503 with that explanation, and it works as soon as `LLM_BASE_URL` points at
+any OpenAI-compatible endpoint, with no change to the code.
 
-Splitting `/gate` out from generation is not a workaround. The gate is a total
-function of the score, so anyone can post their own generator's number and get the
-decision this system would make, with the threshold and the measured risk it bought
-returned alongside.
+`/gate` is separate from generation on purpose. The gate depends only on the score, so
+anyone can post their own generator's score and get the decision this system would make,
+together with the threshold and the measured risk behind it.
 
-Deployment details, and the three separate ways SQLite fails on Lambda's read-only
-filesystem, are in [docs/deploy.md](docs/deploy.md).
+Deployment details, including three different ways SQLite fails on Lambda's read-only file
+system, are in [docs/deploy.md](docs/deploy.md).
 
 ## Retrieval at scale
 
-Brute force is the right call at 1,752 chunks. [docs/scale.md](docs/scale.md)
-measures where it stops being one, with the same retrieval code pointed at MS
-MARCO's 8.8 million passages. Unchanged, the served path takes 4.9 s a query at a
-million passages, almost all of it re-reading every vector from SQLite and running
-FTS5 queries that match any passage containing "what" or "the". An HNSW index
-returns 94% of the exact top 10 in 1.3 ms on all 8.8 million passages, from 5.4 GB
-of RAM, and IVF with product quantisation holds them in 497 MB. Fusing BM25 into the
-dense ranking lowers MRR@10 at every size, which leaves open whether fusion earns its
-place on the manuals. BM25 and the encoder both reproduce their published MS MARCO
-scores to within 0.003.
+Brute-force search is the right choice at 1,752 chunks. [docs/scale.md](docs/scale.md)
+measures where it stops being right, with the same retrieval code pointed at MS MARCO's 8.8
+million passages. Unchanged, the served path takes 4.9 s per query at a million passages,
+almost all of it spent re-reading every vector from SQLite and running FTS5 queries that
+match any passage containing "what" or "the". An HNSW index returns 94% of the exact top 10
+in 1.3 ms on all 8.8 million passages, using 5.4 GB of RAM, and IVF with product
+quantisation fits them in 497 MB. Fusing BM25 into the dense ranking lowers MRR@10 at every
+size, so it is still an open question whether fusion helps on the manuals. BM25 and the
+encoder both reproduce their published MS MARCO scores to within 0.003.
 
 ## Documentation
 
@@ -221,23 +213,23 @@ scores to within 0.003.
 [Model card](docs/model-card.md) ·
 [Deployment](docs/deploy.md)
 
-## Measured and rejected
+## Measured and dropped
 
-Two planned components were built, measured and then dropped. They are written up
-rather than quietly removed, because the measurement is the useful part:
+Two planned components were built, measured and then dropped. They are documented here
+because the measurements are useful:
 
-- **A trained reranker**, which bought +0.02 recall@5 for +899 ms of latency.
-- **An anchor-free support prompt**, which fixed the score's granularity but not its
-  blindness to answer correctness.
+- A trained reranker, which added 0.02 to recall@5 and 899 ms of latency.
+- A support prompt without anchors, which fixed the score's granularity but still could not
+  tell correct answers from wrong ones.
 
 ## Limits and next steps
 
-Every hand-written question set sits at 0.30 to 0.42 base error while the generated
-set sits at 0.588, so the gate is not currently being tested where it is weakest. The
-next step is a deliberately harder hand-written batch.
+Every hand-written question set has a base error between 0.30 and 0.42, while the
+generated set has 0.588, so the gate has not yet been tested where it is weakest. The next
+step is a harder hand-written batch.
 
-Out of scope for a first version: a UI, multi-corpus retrieval, a fine-tuned
-generator, Kubernetes, and streaming.
+Not in scope for a first version: a user interface, retrieval across several corpora, a
+fine-tuned generator, Kubernetes, and streaming.
 
 ## References
 
