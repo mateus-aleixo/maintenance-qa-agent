@@ -26,6 +26,9 @@ serve = [
 # The MS MARCO scale benchmark in scale/. Embedding 8.8 million passages also needs a
 # CUDA build of torch, installed by hand: see scale/README.md.
 scale = ["sentence-transformers>=3.0", "faiss-cpu>=1.8", "PyStemmer>=2.2", "bm25s>=0.2"]
+# The QLoRA experiment in finetune/. Training needs a CUDA build of torch, installed by
+# hand as for scale/: see finetune/README.md.
+finetune = ["sentence-transformers>=3.0", "transformers>=4.56", "peft>=0.15", "bitsandbytes>=0.45", "accelerate>=1.0"]
 dev = ["pytest>=8.0", "ruff>=0.4", "fastapi>=0.110", "httpx>=0.27", "onnxruntime>=1.18", "tokenizers>=0.20"]
 
 [project.urls]
@@ -42,7 +45,7 @@ packages = ["src/conformal_rag"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-# scale/ is a top-level package beside src/, imported by its tests.
+# scale/ and finetune/ are top-level packages beside src/, imported by their tests.
 pythonpath = ["."]
 
 [tool.ruff]

@@ -10,6 +10,9 @@ data/gate.json
 # MS MARCO for the scale benchmark: licensed for non-commercial research only, and
 # about 25 GB once embedded and indexed. `python -m scale.fetch` rebuilds it.
 data/msmarco/
+# Fine-tuning data and adapters: rebuilt by `python -m finetune.run`. Only the measured
+# numbers in runs/finetune/ are committed.
+data/finetune/
 *.pdf
 
 # python
