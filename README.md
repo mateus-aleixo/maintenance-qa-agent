@@ -205,11 +205,25 @@ quantisation fits them in 497 MB. Fusing BM25 into the dense ranking lowers MRR@
 size, so it is still an open question whether fusion helps on the manuals. BM25 and the
 encoder both reproduce their published MS MARCO scores to within 0.003.
 
+## Fine-tuning against prompting
+
+[docs/finetune.md](docs/finetune.md) measures whether QLoRA fine-tuning teaches
+Qwen2.5-3B to answer from the excerpts or decline better than the served prompt does. The
+model was trained on a 6 GB laptop GPU, on 1,000 examples written by the 7B, and tested on
+the same 206 questions with the same judge and gate. The planned run, with 40% declines in
+its training data, answered 60.0% of the answerable questions correctly against 71.0% for
+the same model prompted, mostly because it declined 26% of them. Runs with 20% and with no
+declines, added after that result, declined less but answered no more questions
+correctly. The one trained without declines stopped declining altogether, even on
+unanswerable questions. The prompted 7B stayed well ahead behind the gate: at 50%
+coverage its risk is 0.068, against 0.165 to 0.214 for every 3B row.
+
 ## Documentation
 
 [Results](docs/results.md) ·
 [Architecture](docs/architecture.md) ·
 [Retrieval at scale](docs/scale.md) ·
+[Fine-tuning against prompting](docs/finetune.md) ·
 [Model card](docs/model-card.md) ·
 [Deployment](docs/deploy.md)
 
@@ -228,8 +242,8 @@ Every hand-written question set has a base error between 0.30 and 0.42, while th
 generated set has 0.588, so the gate has not yet been tested where it is weakest. The next
 step is a harder hand-written batch.
 
-Not in scope for a first version: a user interface, retrieval across several corpora, a
-fine-tuned generator, Kubernetes, and streaming.
+Not in scope for a first version: a user interface, retrieval across several corpora,
+Kubernetes, and streaming.
 
 ## References
 

@@ -1,0 +1,41 @@
+{
+  "teacher": "qwen2.5:7b-instruct",
+  "questions": {
+    "chunk": 1006,
+    "near": 400,
+    "outside": 200
+  },
+  "dropped_at_writing": {
+    "verbatim": 119
+  },
+  "labelled": {
+    "answer": 799,
+    "removed": 799,
+    "absent": 600,
+    "missed": 88
+  },
+  "dropped_by_teacher_check": {
+    "answer": 125,
+    "absent": 50,
+    "removed": 169,
+    "missed": 45
+  },
+  "dropped_as_test_paraphrase": 6,
+  "paraphrase_cosine": 0.85,
+  "max_cosine_kept": 0.8355,
+  "decline_fraction": 0.2,
+  "split": {
+    "train": {
+      "answer": 600,
+      "absent": 57,
+      "removed": 84,
+      "missed": 9
+    },
+    "val": {
+      "answer": 71,
+      "removed": 12,
+      "absent": 5,
+      "missed": 1
+    }
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "base": "Qwen/Qwen2.5-3B-Instruct",
+  "args": {
+    "epochs": 2,
+    "lr": 0.0002,
+    "accum": 8,
+    "rank": 16,
+    "max_len": 4096,
+    "eval_every": 25,
+    "seed": 0,
+    "limit": null,
+    "tag": "d0"
+  },
+  "trainable_params": 29933568,
+  "n_train": 600,
+  "n_val": 71,
+  "optimizer_steps": 150,
+  "train": [
+    {
+      "step": 5,
+      "loss": 1.1299,
+      "lr": 0.0002,
+      "elapsed_s": 155
+    },
+    {
+      "step": 10,
+      "loss": 0.4637,
+      "lr": 0.0001995,
+      "elapsed_s": 255
+    },
+    {
+      "step": 15,
+      "loss": 0.4448,
+      "lr": 0.0001979,
+      "elapsed_s": 356
+    },
+    {
+      "step": 20,
+      "loss": 0.4246,
+      "lr": 0.0001954,
+      "elapsed_s": 457
+    },
+    {
+      "step": 25,
+      "loss": 0.4076,
+      "lr": 0.0001918,
+      "elapsed_s": 557
+    },
+    {
+      "step": 30,
+      "loss": 0.4094,
+      "lr": 0.0001873,
+      "elapsed_s": 709
+    },
+    {
+      "step": 35,
+      "loss": 0.4452,
+      "lr": 0.0001819,
+      "elapsed_s": 809
+    },
+    {
+      "step": 40,
+      "loss": 0.3932,
+      "lr": 0.0001757,
+      "elapsed_s": 908
+    },
+    {
+      "step": 45,
+      "loss": 0.4183,
+      "lr": 0.0001687,
+      "elapsed_s": 1011
+    },
+    {
+      "step": 50,
+      "loss": 0.3851,
+      "lr": 0.000161,
+      "elapsed_s": 1113
+    },
+    {
+      "step": 55,
+      "loss": 0.3879,
+      "lr": 0.0001527,
+      "elapsed_s": 1266
+    },
+    {
+      "step": 60,
+      "loss": 0.36,
+      "lr": 0.000144,
+      "elapsed_s": 1367
+    },
+    {
+      "step": 65,
+      "loss": 0.3279,
+      "lr": 0.0001348,
+      "elapsed_s": 1466
+    },
+    {
+      "step": 70,
+      "loss": 0.3469,
+      "lr": 0.0001254,
+      "elapsed_s": 1567
+    },
+    {
+      "step": 75,
+      "loss": 0.3068,
+      "lr": 0.0001158,
+      "elapsed_s": 1671
+    },
+    {
+      "step": 80,
+      "loss": 0.2745,
+      "lr": 0.0001061,
+      "elapsed_s": 1823
+    },
+    {
+      "step": 85,
+      "loss": 0.2133,
+      "lr": 9.65e-05,
+      "elapsed_s": 1926
+    },
+    {
+      "step": 90,
+      "loss": 0.1993,
+      "lr": 8.7e-05,
+      "elapsed_s": 2025
+    },
+    {
+      "step": 95,
+      "loss": 0.151,
+      "lr": 7.78e-05,
+      "elapsed_s": 2127
+    },
+    {
+      "step": 100,
+      "loss": 0.2269,
+      "lr": 6.9e-05,
+      "elapsed_s": 2228
+    },
+    {
+      "step": 105,
+      "loss": 0.1635,
+      "lr": 6.06e-05,
+      "elapsed_s": 2383
+    },
+    {
+      "step": 110,
+      "loss": 0.1674,
+      "lr": 5.28e-05,
+      "elapsed_s": 2486
+    },
+    {
+      "step": 115,
+      "loss": 0.1694,
+      "lr": 4.57e-05,
+      "elapsed_s": 2587
+    },
+    {
+      "step": 120,
+      "loss": 0.2207,
+      "lr": 3.93e-05,
+      "elapsed_s": 2687
+    },
+    {
+      "step": 125,
+      "loss": 0.1799,
+      "lr": 3.37e-05,
+      "elapsed_s": 2788
+    },
+    {
+      "step": 130,
+      "loss": 0.1744,
+      "lr": 2.9e-05,
+      "elapsed_s": 2941
+    },
+    {
+      "step": 135,
+      "loss": 0.2077,
+      "lr": 2.53e-05,
+      "elapsed_s": 3042
+    },
+    {
+      "step": 140,
+      "loss": 0.1692,
+      "lr": 2.25e-05,
+      "elapsed_s": 3145
+    },
+    {
+      "step": 145,
+      "loss": 0.1334,
+      "lr": 2.07e-05,
+      "elapsed_s": 3245
+    },
+    {
+      "step": 150,
+      "loss": 0.1988,
+      "lr": 2e-05,
+      "elapsed_s": 3345
+    }
+  ],
+  "val": [
+    {
+      "step": 0,
+      "all": 1.6931,
+      "answer": 1.6931
+    },
+    {
+      "step": 25,
+      "all": 0.4227,
+      "answer": 0.4227
+    },
+    {
+      "step": 50,
+      "all": 0.43,
+      "answer": 0.43
+    },
+    {
+      "step": 75,
+      "all": 0.3969,
+      "answer": 0.3969
+    },
+    {
+      "step": 100,
+      "all": 0.3981,
+      "answer": 0.3981
+    },
+    {
+      "step": 125,
+      "all": 0.4013,
+      "answer": 0.4013
+    },
+    {
+      "step": 150,
+      "all": 0.4016,
+      "answer": 0.4016
+    }
+  ],
+  "peak_gib": 3.59,
+  "minutes": 56.6,
+  "train_tokens_per_s": 681,
+  "best_step": 75
+}

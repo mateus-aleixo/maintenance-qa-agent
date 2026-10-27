@@ -1,0 +1,1152 @@
+{
+  "alphas": [
+    0.1,
+    0.2,
+    0.3
+  ],
+  "repeats": 300,
+  "generators": {
+    "hf-base": {
+      "label": "3B, prompted (NF4, transformers)",
+      "n": 206,
+      "base_error": 0.5,
+      "correct": 0.71,
+      "declined_answerable": 0.076,
+      "declined_unanswerable": 0.934,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.567
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.812
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 1.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.889
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.549,
+            "coverage_mean": 0.147,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.218,
+            "risk_mean": 0.101,
+            "n_trials": 144
+          },
+          "0.2": {
+            "met_rate": 0.636,
+            "coverage_mean": 0.373,
+            "coverage_p25": 0.143,
+            "coverage_p75": 0.529,
+            "risk_mean": 0.168,
+            "n_trials": 247
+          },
+          "0.3": {
+            "met_rate": 0.934,
+            "coverage_mean": 0.472,
+            "coverage_p25": 0.386,
+            "coverage_p75": 0.614,
+            "risk_mean": 0.186,
+            "n_trials": 290
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.268,
+            "coverage_p25": 0.229,
+            "coverage_p75": 0.314,
+            "risk_mean": 0.271,
+            "n_trials": 47
+          },
+          "0.2": {
+            "met_rate": 0.508,
+            "coverage_mean": 0.328,
+            "coverage_p25": 0.257,
+            "coverage_p75": 0.386,
+            "risk_mean": 0.219,
+            "n_trials": 177
+          },
+          "0.3": {
+            "met_rate": 0.854,
+            "coverage_mean": 0.39,
+            "coverage_p25": 0.293,
+            "coverage_p75": 0.5,
+            "risk_mean": 0.214,
+            "n_trials": 239
+          }
+        },
+        "s_decline": {
+          "0.1": {
+            "met_rate": 0.024,
+            "coverage_mean": 0.279,
+            "coverage_p25": 0.161,
+            "coverage_p75": 0.339,
+            "risk_mean": 0.319,
+            "n_trials": 42
+          },
+          "0.2": {
+            "met_rate": 0.272,
+            "coverage_mean": 0.375,
+            "coverage_p25": 0.186,
+            "coverage_p75": 0.514,
+            "risk_mean": 0.246,
+            "n_trials": 180
+          },
+          "0.3": {
+            "met_rate": 0.854,
+            "coverage_mean": 0.423,
+            "coverage_p25": 0.214,
+            "coverage_p75": 0.571,
+            "risk_mean": 0.224,
+            "n_trials": 281
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.165,
+        "s_own": 0.233,
+        "s_decline": 0.184
+      },
+      "latency": {
+        "mean_s": 3.49,
+        "median_s": 2.75,
+        "completion_tokens_mean": 44.6,
+        "tokens_per_s": 12.8
+      },
+      "memory": {
+        "peak_gib": 2.49
+      }
+    },
+    "hf-tuned": {
+      "label": "3B, fine-tuned, 40% declines (NF4 + LoRA)",
+      "n": 206,
+      "base_error": 0.578,
+      "correct": 0.6,
+      "declined_answerable": 0.262,
+      "declined_unanswerable": 0.967,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.5
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.671
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 1.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.944
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.421,
+            "coverage_mean": 0.152,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.257,
+            "risk_mean": 0.112,
+            "n_trials": 121
+          },
+          "0.2": {
+            "met_rate": 0.648,
+            "coverage_mean": 0.341,
+            "coverage_p25": 0.257,
+            "coverage_p75": 0.457,
+            "risk_mean": 0.166,
+            "n_trials": 233
+          },
+          "0.3": {
+            "met_rate": 0.972,
+            "coverage_mean": 0.406,
+            "coverage_p25": 0.343,
+            "coverage_p75": 0.5,
+            "risk_mean": 0.173,
+            "n_trials": 281
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.077,
+            "coverage_mean": 0.211,
+            "coverage_p25": 0.125,
+            "coverage_p75": 0.289,
+            "risk_mean": 0.199,
+            "n_trials": 52
+          },
+          "0.2": {
+            "met_rate": 0.607,
+            "coverage_mean": 0.349,
+            "coverage_p25": 0.214,
+            "coverage_p75": 0.443,
+            "risk_mean": 0.184,
+            "n_trials": 196
+          },
+          "0.3": {
+            "met_rate": 0.954,
+            "coverage_mean": 0.407,
+            "coverage_p25": 0.343,
+            "coverage_p75": 0.511,
+            "risk_mean": 0.188,
+            "n_trials": 262
+          }
+        },
+        "s_decline": {
+          "0.1": {
+            "met_rate": 0.048,
+            "coverage_mean": 0.246,
+            "coverage_p25": 0.175,
+            "coverage_p75": 0.296,
+            "risk_mean": 0.233,
+            "n_trials": 42
+          },
+          "0.2": {
+            "met_rate": 0.497,
+            "coverage_mean": 0.36,
+            "coverage_p25": 0.229,
+            "coverage_p75": 0.486,
+            "risk_mean": 0.2,
+            "n_trials": 181
+          },
+          "0.3": {
+            "met_rate": 0.981,
+            "coverage_mean": 0.413,
+            "coverage_p25": 0.3,
+            "coverage_p75": 0.514,
+            "risk_mean": 0.188,
+            "n_trials": 264
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.184,
+        "s_own": 0.204,
+        "s_decline": 0.194
+      },
+      "latency": {
+        "mean_s": 2.77,
+        "median_s": 2.14,
+        "completion_tokens_mean": 15.3,
+        "tokens_per_s": 5.5
+      },
+      "memory": {
+        "peak_gib": 2.94
+      }
+    },
+    "hf-tuned-d20": {
+      "label": "3B, fine-tuned, 20% declines (NF4 + LoRA)",
+      "n": 206,
+      "base_error": 0.563,
+      "correct": 0.621,
+      "declined_answerable": 0.186,
+      "declined_unanswerable": 0.967,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.483
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.718
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 1.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.944
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.541,
+            "coverage_mean": 0.106,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.2,
+            "risk_mean": 0.113,
+            "n_trials": 109
+          },
+          "0.2": {
+            "met_rate": 0.49,
+            "coverage_mean": 0.278,
+            "coverage_p25": 0.114,
+            "coverage_p75": 0.457,
+            "risk_mean": 0.181,
+            "n_trials": 210
+          },
+          "0.3": {
+            "met_rate": 0.896,
+            "coverage_mean": 0.385,
+            "coverage_p25": 0.257,
+            "coverage_p75": 0.529,
+            "risk_mean": 0.193,
+            "n_trials": 268
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.263,
+            "coverage_mean": 0.245,
+            "coverage_p25": 0.2,
+            "coverage_p75": 0.296,
+            "risk_mean": 0.161,
+            "n_trials": 118
+          },
+          "0.2": {
+            "met_rate": 0.671,
+            "coverage_mean": 0.302,
+            "coverage_p25": 0.229,
+            "coverage_p75": 0.371,
+            "risk_mean": 0.168,
+            "n_trials": 231
+          },
+          "0.3": {
+            "met_rate": 0.852,
+            "coverage_mean": 0.36,
+            "coverage_p25": 0.286,
+            "coverage_p75": 0.429,
+            "risk_mean": 0.186,
+            "n_trials": 270
+          }
+        },
+        "s_decline": {
+          "0.1": {
+            "met_rate": 0.029,
+            "coverage_mean": 0.172,
+            "coverage_p25": 0.129,
+            "coverage_p75": 0.186,
+            "risk_mean": 0.307,
+            "n_trials": 34
+          },
+          "0.2": {
+            "met_rate": 0.232,
+            "coverage_mean": 0.203,
+            "coverage_p25": 0.129,
+            "coverage_p75": 0.214,
+            "risk_mean": 0.266,
+            "n_trials": 142
+          },
+          "0.3": {
+            "met_rate": 0.764,
+            "coverage_mean": 0.263,
+            "coverage_p25": 0.143,
+            "coverage_p75": 0.368,
+            "risk_mean": 0.239,
+            "n_trials": 254
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.194,
+        "s_own": 0.243,
+        "s_decline": 0.233
+      },
+      "latency": {
+        "mean_s": 2.81,
+        "median_s": 2.4,
+        "completion_tokens_mean": 15.7,
+        "tokens_per_s": 5.6
+      },
+      "memory": {
+        "peak_gib": 2.94
+      }
+    },
+    "hf-tuned-d0": {
+      "label": "3B, fine-tuned, no declines (NF4 + LoRA)",
+      "n": 206,
+      "base_error": 0.515,
+      "correct": 0.69,
+      "declined_answerable": 0.0,
+      "declined_unanswerable": 0.0,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.583
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.765
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 0.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.0
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.538,
+            "coverage_mean": 0.099,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.175,
+            "risk_mean": 0.114,
+            "n_trials": 104
+          },
+          "0.2": {
+            "met_rate": 0.541,
+            "coverage_mean": 0.242,
+            "coverage_p25": 0.1,
+            "coverage_p75": 0.357,
+            "risk_mean": 0.178,
+            "n_trials": 181
+          },
+          "0.3": {
+            "met_rate": 0.903,
+            "coverage_mean": 0.367,
+            "coverage_p25": 0.243,
+            "coverage_p75": 0.514,
+            "risk_mean": 0.197,
+            "n_trials": 259
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.169,
+            "coverage_mean": 0.104,
+            "coverage_p25": 0.071,
+            "coverage_p75": 0.114,
+            "risk_mean": 0.169,
+            "n_trials": 89
+          },
+          "0.2": {
+            "met_rate": 0.746,
+            "coverage_mean": 0.111,
+            "coverage_p25": 0.071,
+            "coverage_p75": 0.129,
+            "risk_mean": 0.147,
+            "n_trials": 173
+          },
+          "0.3": {
+            "met_rate": 0.778,
+            "coverage_mean": 0.17,
+            "coverage_p25": 0.086,
+            "coverage_p75": 0.243,
+            "risk_mean": 0.18,
+            "n_trials": 212
+          }
+        },
+        "s_decline": {
+          "0.1": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.0,
+            "n_trials": 0
+          },
+          "0.2": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.0,
+            "n_trials": 0
+          },
+          "0.3": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.0,
+            "n_trials": 0
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.214,
+        "s_own": 0.272,
+        "s_decline": 0.485
+      },
+      "latency": {
+        "mean_s": 3.46,
+        "median_s": 3.33,
+        "completion_tokens_mean": 20.6,
+        "tokens_per_s": 5.9
+      },
+      "memory": {
+        "peak_gib": 2.94
+      }
+    },
+    "ollama-qwen2.5-3b-instruct": {
+      "label": "3B, prompted (Q4_K_M, Ollama)",
+      "n": 206,
+      "base_error": 0.51,
+      "correct": 0.697,
+      "declined_answerable": 0.062,
+      "declined_unanswerable": 0.951,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.5
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.835
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 1.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.917
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.487,
+            "coverage_mean": 0.111,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.143,
+            "risk_mean": 0.108,
+            "n_trials": 158
+          },
+          "0.2": {
+            "met_rate": 0.585,
+            "coverage_mean": 0.269,
+            "coverage_p25": 0.1,
+            "coverage_p75": 0.454,
+            "risk_mean": 0.164,
+            "n_trials": 234
+          },
+          "0.3": {
+            "met_rate": 0.927,
+            "coverage_mean": 0.388,
+            "coverage_p25": 0.189,
+            "coverage_p75": 0.557,
+            "risk_mean": 0.185,
+            "n_trials": 286
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.049,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.014,
+            "risk_mean": 0.912,
+            "n_trials": 37
+          },
+          "0.2": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.153,
+            "coverage_p25": 0.014,
+            "coverage_p75": 0.304,
+            "risk_mean": 0.681,
+            "n_trials": 56
+          },
+          "0.3": {
+            "met_rate": 0.389,
+            "coverage_mean": 0.281,
+            "coverage_p25": 0.171,
+            "coverage_p75": 0.414,
+            "risk_mean": 0.433,
+            "n_trials": 113
+          }
+        },
+        "s_decline": {
+          "0.1": {
+            "met_rate": 0.0,
+            "coverage_mean": 0.243,
+            "coverage_p25": 0.189,
+            "coverage_p75": 0.257,
+            "risk_mean": 0.264,
+            "n_trials": 42
+          },
+          "0.2": {
+            "met_rate": 0.373,
+            "coverage_mean": 0.324,
+            "coverage_p25": 0.2,
+            "coverage_p75": 0.443,
+            "risk_mean": 0.224,
+            "n_trials": 185
+          },
+          "0.3": {
+            "met_rate": 0.885,
+            "coverage_mean": 0.388,
+            "coverage_p25": 0.229,
+            "coverage_p75": 0.529,
+            "risk_mean": 0.212,
+            "n_trials": 288
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.184,
+        "s_own": 0.272,
+        "s_decline": 0.204
+      },
+      "latency": {
+        "mean_s": 1.31,
+        "median_s": 1.16,
+        "completion_tokens_mean": 61.4,
+        "tokens_per_s": 46.7
+      },
+      "memory": {
+        "size_gib": 2.01,
+        "vram_gib": 2.01,
+        "context": 4096
+      }
+    },
+    "ollama-qwen2.5-7b-instruct": {
+      "label": "7B, prompted (Q4_K_M, Ollama)",
+      "n": 206,
+      "base_error": 0.461,
+      "correct": 0.766,
+      "declined_answerable": 0.117,
+      "declined_unanswerable": 0.967,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.567
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.906
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 1.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.944
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.555,
+            "coverage_mean": 0.491,
+            "coverage_p25": 0.471,
+            "coverage_p75": 0.6,
+            "risk_mean": 0.096,
+            "n_trials": 247
+          },
+          "0.2": {
+            "met_rate": 0.94,
+            "coverage_mean": 0.595,
+            "coverage_p25": 0.557,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.127,
+            "n_trials": 299
+          },
+          "0.3": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.599,
+            "coverage_p25": 0.571,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.128,
+            "n_trials": 300
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.636,
+            "coverage_mean": 0.373,
+            "coverage_p25": 0.268,
+            "coverage_p75": 0.5,
+            "risk_mean": 0.082,
+            "n_trials": 264
+          },
+          "0.2": {
+            "met_rate": 0.903,
+            "coverage_mean": 0.568,
+            "coverage_p25": 0.543,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.137,
+            "n_trials": 299
+          },
+          "0.3": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.584,
+            "coverage_p25": 0.543,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.14,
+            "n_trials": 300
+          }
+        },
+        "s_decline": {
+          "0.1": {
+            "met_rate": 0.133,
+            "coverage_mean": 0.559,
+            "coverage_p25": 0.514,
+            "coverage_p75": 0.6,
+            "risk_mean": 0.158,
+            "n_trials": 105
+          },
+          "0.2": {
+            "met_rate": 0.838,
+            "coverage_mean": 0.593,
+            "coverage_p25": 0.543,
+            "coverage_p75": 0.643,
+            "risk_mean": 0.15,
+            "n_trials": 291
+          },
+          "0.3": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.599,
+            "coverage_p25": 0.557,
+            "coverage_p75": 0.643,
+            "risk_mean": 0.149,
+            "n_trials": 300
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.068,
+        "s_own": 0.117,
+        "s_decline": 0.126
+      },
+      "latency": {
+        "mean_s": 3.6,
+        "median_s": 3.3,
+        "completion_tokens_mean": 71.5,
+        "tokens_per_s": 19.9
+      },
+      "memory": {
+        "size_gib": 4.77,
+        "vram_gib": 3.9,
+        "context": 4096
+      }
+    },
+    "14b-cached": {
+      "label": "14B, prompted (Q4_K_M, Ollama; answers from runs/)",
+      "n": 206,
+      "base_error": 0.451,
+      "correct": 0.779,
+      "declined_answerable": 0.11,
+      "declined_unanswerable": 0.984,
+      "by_category": {
+        "generated": {
+          "n": 60,
+          "correct": 0.55
+        },
+        "hand-written": {
+          "n": 85,
+          "correct": 0.941
+        },
+        "outside corpus": {
+          "n": 25,
+          "declined": 1.0
+        },
+        "in-domain, absent": {
+          "n": 36,
+          "declined": 0.972
+        }
+      },
+      "gate": {
+        "s_fixed": {
+          "0.1": {
+            "met_rate": 0.514,
+            "coverage_mean": 0.458,
+            "coverage_p25": 0.246,
+            "coverage_p75": 0.614,
+            "risk_mean": 0.094,
+            "n_trials": 222
+          },
+          "0.2": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.598,
+            "coverage_p25": 0.571,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.108,
+            "n_trials": 299
+          },
+          "0.3": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.599,
+            "coverage_p25": 0.571,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.107,
+            "n_trials": 300
+          }
+        },
+        "s_own": {
+          "0.1": {
+            "met_rate": 0.514,
+            "coverage_mean": 0.458,
+            "coverage_p25": 0.246,
+            "coverage_p75": 0.614,
+            "risk_mean": 0.094,
+            "n_trials": 222
+          },
+          "0.2": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.598,
+            "coverage_p25": 0.571,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.108,
+            "n_trials": 299
+          },
+          "0.3": {
+            "met_rate": 1.0,
+            "coverage_mean": 0.599,
+            "coverage_p25": 0.571,
+            "coverage_p75": 0.629,
+            "risk_mean": 0.107,
+            "n_trials": 300
+          }
+        },
+        "s_fixed_noveto": {
+          "0.1": {
+            "met_rate": 0.493,
+            "coverage_mean": 0.42,
+            "coverage_p25": 0.229,
+            "coverage_p75": 0.6,
+            "risk_mean": 0.101,
+            "n_trials": 217
+          },
+          "0.2": {
+            "met_rate": 0.842,
+            "coverage_mean": 0.625,
+            "coverage_p25": 0.6,
+            "coverage_p75": 0.671,
+            "risk_mean": 0.147,
+            "n_trials": 297
+          },
+          "0.3": {
+            "met_rate": 0.97,
+            "coverage_mean": 0.647,
+            "coverage_p25": 0.614,
+            "coverage_p75": 0.686,
+            "risk_mean": 0.164,
+            "n_trials": 299
+          }
+        }
+      },
+      "risk_at_50": {
+        "s_fixed": 0.087,
+        "s_own": 0.087,
+        "s_fixed_noveto": 0.097
+      }
+    }
+  },
+  "tuned_minus": {
+    "hf-tuned": {
+      "hf-base": {
+        "correct": {
+          "diff": -0.11,
+          "ci95": [
+            -0.193,
+            -0.029
+          ]
+        },
+        "base_error": {
+          "diff": 0.078,
+          "ci95": [
+            0.019,
+            0.136
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.019,
+          "ci95": [
+            -0.068,
+            0.126
+          ]
+        }
+      },
+      "ollama-qwen2.5-3b-instruct": {
+        "correct": {
+          "diff": -0.097,
+          "ci95": [
+            -0.179,
+            -0.014
+          ]
+        },
+        "base_error": {
+          "diff": 0.068,
+          "ci95": [
+            0.01,
+            0.126
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.0,
+          "ci95": [
+            -0.097,
+            0.107
+          ]
+        }
+      },
+      "ollama-qwen2.5-7b-instruct": {
+        "correct": {
+          "diff": -0.166,
+          "ci95": [
+            -0.24,
+            -0.094
+          ]
+        },
+        "base_error": {
+          "diff": 0.117,
+          "ci95": [
+            0.063,
+            0.17
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.117,
+          "ci95": [
+            0.049,
+            0.204
+          ]
+        }
+      },
+      "14b-cached": {
+        "correct": {
+          "diff": -0.179,
+          "ci95": [
+            -0.259,
+            -0.101
+          ]
+        },
+        "base_error": {
+          "diff": 0.126,
+          "ci95": [
+            0.073,
+            0.184
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.097,
+          "ci95": [
+            0.019,
+            0.194
+          ]
+        }
+      }
+    },
+    "hf-tuned-d20": {
+      "hf-base": {
+        "correct": {
+          "diff": -0.09,
+          "ci95": [
+            -0.169,
+            -0.014
+          ]
+        },
+        "base_error": {
+          "diff": 0.063,
+          "ci95": [
+            0.01,
+            0.121
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.029,
+          "ci95": [
+            -0.049,
+            0.117
+          ]
+        }
+      },
+      "ollama-qwen2.5-3b-instruct": {
+        "correct": {
+          "diff": -0.076,
+          "ci95": [
+            -0.154,
+            0.0
+          ]
+        },
+        "base_error": {
+          "diff": 0.053,
+          "ci95": [
+            0.0,
+            0.107
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.01,
+          "ci95": [
+            -0.087,
+            0.107
+          ]
+        }
+      },
+      "ollama-qwen2.5-7b-instruct": {
+        "correct": {
+          "diff": -0.145,
+          "ci95": [
+            -0.215,
+            -0.074
+          ]
+        },
+        "base_error": {
+          "diff": 0.102,
+          "ci95": [
+            0.053,
+            0.155
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.126,
+          "ci95": [
+            0.058,
+            0.204
+          ]
+        }
+      },
+      "14b-cached": {
+        "correct": {
+          "diff": -0.159,
+          "ci95": [
+            -0.233,
+            -0.081
+          ]
+        },
+        "base_error": {
+          "diff": 0.112,
+          "ci95": [
+            0.058,
+            0.165
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.107,
+          "ci95": [
+            0.019,
+            0.194
+          ]
+        }
+      }
+    },
+    "hf-tuned-d0": {
+      "hf-base": {
+        "correct": {
+          "diff": -0.021,
+          "ci95": [
+            -0.093,
+            0.053
+          ]
+        },
+        "base_error": {
+          "diff": 0.015,
+          "ci95": [
+            -0.039,
+            0.063
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.049,
+          "ci95": [
+            -0.039,
+            0.126
+          ]
+        }
+      },
+      "ollama-qwen2.5-3b-instruct": {
+        "correct": {
+          "diff": -0.007,
+          "ci95": [
+            -0.082,
+            0.067
+          ]
+        },
+        "base_error": {
+          "diff": 0.005,
+          "ci95": [
+            -0.049,
+            0.058
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.029,
+          "ci95": [
+            -0.068,
+            0.117
+          ]
+        }
+      },
+      "ollama-qwen2.5-7b-instruct": {
+        "correct": {
+          "diff": -0.076,
+          "ci95": [
+            -0.148,
+            -0.007
+          ]
+        },
+        "base_error": {
+          "diff": 0.053,
+          "ci95": [
+            0.005,
+            0.107
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.146,
+          "ci95": [
+            0.068,
+            0.214
+          ]
+        }
+      },
+      "14b-cached": {
+        "correct": {
+          "diff": -0.09,
+          "ci95": [
+            -0.166,
+            -0.02
+          ]
+        },
+        "base_error": {
+          "diff": 0.063,
+          "ci95": [
+            0.015,
+            0.117
+          ]
+        },
+        "risk_at_50_fixed": {
+          "diff": 0.126,
+          "ci95": [
+            0.039,
+            0.204
+          ]
+        }
+      }
+    }
+  },
+  "training": {
+    "hf-tuned": {
+      "n_train": 1000,
+      "n_val": 118,
+      "optimizer_steps": 250,
+      "best_step": 250,
+      "trainable_params": 29933568,
+      "peak_gib": 3.77,
+      "minutes": 100.7,
+      "train_tokens_per_s": 681
+    },
+    "hf-tuned-d20": {
+      "n_train": 750,
+      "n_val": 89,
+      "optimizer_steps": 187,
+      "best_step": 100,
+      "trainable_params": 29933568,
+      "peak_gib": 3.77,
+      "minutes": 73.1,
+      "train_tokens_per_s": 682
+    },
+    "hf-tuned-d0": {
+      "n_train": 600,
+      "n_val": 71,
+      "optimizer_steps": 150,
+      "best_step": 75,
+      "trainable_params": 29933568,
+      "peak_gib": 3.59,
+      "minutes": 56.6,
+      "train_tokens_per_s": 681
+    }
+  }
+}
