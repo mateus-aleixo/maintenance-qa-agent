@@ -32,8 +32,16 @@ jobs:
       # models/ is not in git, so this builds an image with an empty registry.
       # That is the point: it proves the container assembles and starts, and that
       # a registry-less deploy degrades to 503 rather than crashing.
+      # The Lambda adapter only runs on Lambda, and anonymous pulls of it from ECR Public
+      # fail on shared runners. CI builds against an empty stand-in; deploy.yml builds
+      # the real one.
+      - name: Stand-in for the Lambda adapter
+        run: |
+          mkdir -p /tmp/adapter && touch /tmp/adapter/lambda-adapter
+          printf 'FROM scratch\nCOPY lambda-adapter /lambda-adapter\n' | docker build -t lambda-adapter:ci -f - /tmp/adapter
+
       - name: Build
-        run: docker build -t conformal-rag:ci .
+        run: docker build --build-arg LAMBDA_ADAPTER_IMAGE=lambda-adapter:ci -t conformal-rag:ci .
 
       # The image installs the package with --no-deps on top of a pinned, torch-free
       # requirements set. That is easy to break from pyproject and the breakage is
