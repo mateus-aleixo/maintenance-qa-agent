@@ -118,3 +118,28 @@ crashed on a PDF parser it never uses. The import is now lazy.
   `/gates`, because an image built without a registry starts perfectly happily
   and 503s on every prediction.
 - Deploys authenticate by GitHub OIDC. No AWS keys exist anywhere.
+
+## Why abstain, and why conformal
+
+RAG systems fail worst on the questions they cannot answer. Retrieval returns something
+loosely related, the model writes a fluent paragraph, and the reader has no way to tell
+that it is wrong. Confidence heuristics, such as the model seeming unsure, come with no
+guarantee.
+
+Conformal risk control does give one. Given a calibration set of questions labelled as
+answered correctly or wrongly, it chooses the confidence threshold
+
+λ̂ = inf { λ : (n/(n+1)) · R̂(λ) + 1/(n+1) ≤ α }
+
+and answers only above it. Under exchangeability, the wrong-answer rate among answered
+questions is then at most α, in finite samples and with no assumptions about the
+distribution (Angelopoulos et al., 2022; Mohri and Hashimoto, 2024). A Mondrian split gives
+a separate threshold for each question type, with a fallback for small groups, the same
+construction turbofan-rul uses for operating regimes.
+
+## References
+
+- Angelopoulos, Bates, Fisch, Lei, Schuster, *Conformal Risk Control*, 2022.
+- Mohri, Hashimoto, *Language Models with Conformal Factuality Guarantees*, 2024.
+- Barber, Candès, Ramdas, Tibshirani, *Predictive inference with the jackknife+*,
+  2021.
