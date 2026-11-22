@@ -62,6 +62,15 @@ resource "aws_iam_role_policy" "deploy" {
         Resource = "*"
       },
       {
+        # The Dockerfile copies the Lambda Web Adapter from ECR Public, and anonymous
+        # pulls from shared GitHub runners fail ("toomanyrequests: Data limit exceeded").
+        # deploy.yml logs in to ECR Public first; its token needs both of these.
+        Sid      = "EcrPublicPull"
+        Effect   = "Allow"
+        Action   = ["ecr-public:GetAuthorizationToken", "sts:GetServiceBearerToken"]
+        Resource = "*"
+      },
+      {
         Sid    = "EcrPush"
         Effect = "Allow"
         Action = [

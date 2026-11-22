@@ -40,6 +40,14 @@ jobs:
       - id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # The Dockerfile copies the Lambda Web Adapter from ECR Public, and anonymous pulls
+      # from shared runners fail ("toomanyrequests: Data limit exceeded"), so the build
+      # pulls it logged in. ECR Public tokens come only from us-east-1.
+      - name: log in to ECR Public
+        run: |
+          aws ecr-public get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin public.ecr.aws
+
       - name: build and push
         env:
           IMAGE: ${{ steps.ecr.outputs.registry }}/conformal-rag
