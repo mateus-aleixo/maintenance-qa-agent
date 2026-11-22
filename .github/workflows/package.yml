@@ -1,0 +1,69 @@
+name: package
+
+# The serving image on the GitHub Container Registry, so the API runs anywhere:
+#   docker run --rm -p 8000:8000 ghcr.io/mateus-aleixo/maintenance-qa-agent
+# then open http://localhost:8000/docs. It is the image deploy.yml ships to Lambda, with the same
+# registry, built with the empty stand-in for the Lambda adapter that CI uses: the adapter only
+# runs on Lambda, and anonymous pulls of it from ECR Public fail on shared runners. No AWS access
+# is needed here.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # models/ is not in git: the ONNX query encoder is 135 MB (see deploy.yml).
+      - name: Fetch the serving registry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${REGISTRY_TAG:-registry-v1}" \
+            --repo "${{ github.repository }}" \
+            --pattern registry.tar.gz --output registry.tar.gz
+          tar -xzf registry.tar.gz
+          test -f models/gate.json && test -f models/embedder/model.onnx
+          echo "registry:" && ls models/
+
+      - name: Stand-in for the Lambda adapter
+        run: |
+          mkdir -p /tmp/adapter && touch /tmp/adapter/lambda-adapter
+          printf 'FROM scratch\nCOPY lambda-adapter /lambda-adapter\n' | docker build -t lambda-adapter:ci -f - /tmp/adapter
+
+      - name: Build
+        run: |
+          docker build --build-arg LAMBDA_ADAPTER_IMAGE=lambda-adapter:ci \
+            --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
+            --label "org.opencontainers.image.description=Retrieval and conformal answer gate over maintenance manuals, on FastAPI and ONNX Runtime. Run with -p 8000:8000 and open /docs." \
+            -t api .
+
+      # /health passes with an empty models/, so check the gate is loaded.
+      - name: Smoke test the container
+        run: |
+          docker run -d --name smoke -p 8000:8000 api
+          for _ in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && break
+            sleep 1
+          done
+          curl -sf http://localhost:8000/health | grep -q '"status":"ok"'
+          curl -sf http://localhost:8000/gates | grep -q '"threshold"'
+          echo "container serves the gate"
+          docker rm -f smoke
+
+      - name: Push
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION="sha-${GITHUB_SHA::12}"; fi
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          for t in "$VERSION" latest; do
+            docker tag api "$IMAGE:$t" && docker push "$IMAGE:$t"
+          done
