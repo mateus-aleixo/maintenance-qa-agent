@@ -52,7 +52,9 @@ jobs:
         env:
           IMAGE: ${{ steps.ecr.outputs.registry }}/conformal-rag
         run: |
-          docker build -t "$IMAGE:${GITHUB_SHA::12}" -t "$IMAGE:latest" .
+          # Lambda rejects the provenance attestation that newer BuildKit adds by default
+          # ("image manifest, config or layer media type ... is not supported").
+          docker build --provenance=false -t "$IMAGE:${GITHUB_SHA::12}" -t "$IMAGE:latest" .
           docker push "$IMAGE:${GITHUB_SHA::12}"
           docker push "$IMAGE:latest"
 
